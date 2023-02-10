@@ -69,8 +69,14 @@ const signin = async (req: Request, res: Response) => {
   res.status(200).send(userJwt);
 };
 
+const listUsers = async (req: Request, res: Response) => {
+  const users = await User.find({ role: { $ne: roles.SUPERMANAGER } });
+  res.status(200).send(users);
+};
+
 export {
   signUp as signUpController,
   signUpSuperman as signUpSupermanController,
   signin as signinController,
+  listUsers as listUsersController,
 };

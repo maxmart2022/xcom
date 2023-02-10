@@ -4,6 +4,7 @@ import {
   signUpController,
   signUpSupermanController,
   signinController,
+  listUsersController,
 } from "../controllers/userController";
 import {
   signInValidator,
@@ -37,13 +38,13 @@ router.post(
   signinController
 );
 
-// router.get(
-//   "/api/superman/users",
-//   requireSuperman,
-//   currentUser,
-//   requireAuth,
-//   listUsersController
-// );
+router.get(
+  "/api/superman/users",
+  requireSuperman,
+  // currentUser,
+  // requireAuth,
+  listUsersController
+);
 
 // router.put(
 //   "/api/superman/users/update/:id",

@@ -6,7 +6,7 @@ import {
 } from "@shabeebm369/common";
 import { Request, Response } from "express";
 import mongoose, { ObjectId } from "mongoose";
-import { Authorization } from "../models/authorisationModel";
+// import { Authorization } from "../models/authorizationModel";
 import { buildSubCategory, Category } from "../models/categoryModel";
 import { User } from "../models/userModel";
 
@@ -182,10 +182,10 @@ const deleteCategory = async (req: Request, res: Response) => {
   res.status(200).send(category);
 };
 
-const userList = async (req: Request, res: Response) => {
-  const users = await Authorization.find({});
-  res.status(200).send(users);
-};
+// const userList = async (req: Request, res: Response) => {
+//   const users = await Authorization.find({});
+//   res.status(200).send(users);
+// };
 
 export {
   listCategory,
@@ -193,5 +193,5 @@ export {
   newCategory,
   updateCategory,
   deleteCategory,
-  userList,
+  // userList,
 };
