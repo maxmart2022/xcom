@@ -11,6 +11,7 @@ import cookiesSession from "cookie-session";
 import { errorHandler, NotFoundError } from "./helpers/errorHander";
 import { helloRouter } from "./routes/hello";
 import { userRouter } from "./routes/userRoute";
+import { brandRouter } from "./routes/brandRoute";
 
 const app = express();
 app.set("trust proxy", true);
@@ -25,6 +26,7 @@ app.use(
 
 // routes
 app.use(userRouter);
+app.use(brandRouter);
 app.use(helloRouter);
 
 // app.all("*", async (req, res) => {

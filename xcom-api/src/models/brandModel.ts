@@ -1,8 +1,11 @@
+// Copied from Smily. No changes made
 import mongoose from "mongoose";
 
 interface brandAttrs {
   name: string;
   parent?: mongoose.Types.ObjectId;
+  brandOwner: string;
+  createdBy: mongoose.Types.ObjectId;
 }
 
 interface BrandModel extends mongoose.Model<BrandDoc> {
@@ -13,6 +16,7 @@ interface BrandDoc extends mongoose.Document {
   name: string;
   parent: mongoose.Types.ObjectId;
   child: [mongoose.Types.ObjectId];
+  brandOwner: string;
   createdBy: mongoose.Types.ObjectId;
 }
 
@@ -34,6 +38,18 @@ const brandSchema = new mongoose.Schema(
         ref: "Brand",
       },
     ],
+    brandOwner: {
+      type: String,
+      required: true,
+    },
+    createdBy: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+    },
+    lastUpdatedBy: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+    },
   },
   {
     toJSON: {
