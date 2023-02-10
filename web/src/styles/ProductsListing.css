@@ -1,0 +1,31 @@
+.product {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 10px;
+}
+
+.product img {
+  width: 200px;
+  height: 200px;
+}
+
+.product h3 {
+  margin-top: 10px;
+  font-size: 20px;
+}
+
+.product p {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.product button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
