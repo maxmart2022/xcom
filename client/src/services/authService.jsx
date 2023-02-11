@@ -7,17 +7,17 @@ const useAuthService = () => {
 
 	const getUsers = async () => {
 		const responseData = await request('get', `${API_URL}/users`);
-		return responseData.data;
+		return responseData;
 	};
 
 	const login = async (data) => {
 		const responseData = await request('post', `${API_URL}/signin`, data);
-		return responseData.data;
+		return responseData;
 	};
 
 	const signup = async (data) => {
 		const responseData = await request('post', `${API_URL}/signup`, data);
-		return responseData.data;
+		return responseData;
 	};
 
 	return {

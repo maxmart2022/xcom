@@ -23,6 +23,11 @@ spec:
                 secretKeyRef:
                   name: jwt-key
                   key: JWT_KEY
+            - name: REFRESH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-refresh
+                  key: REFRESH_TOKEN
             - name: SUPERADMIN_EMAIL
               valueFrom:
                 secretKeyRef:

@@ -23,9 +23,9 @@ const Form = () => {
 	const { login, loading, error } = useAuthService();
 
 	const doSubmit = async (payload) => {
-		const data = await login(payload);
-		if (data.access_token) {
-			localStorage.setItem(data);
+		const responseData = await login(payload);
+		if (responseData) {
+			localStorage.setItem('x-access-token', responseData.access_token);
 			navigate('/dashboard');
 		}
 	};

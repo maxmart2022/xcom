@@ -13,6 +13,7 @@ const useApi = () => {
 			setData(null);
 			const response = await axios.request({ method, url, data: payload });
 			setData(response.data);
+			return response.data;
 		} catch (err) {
 			console.log(err);
 			if (err.response && err.response.data && err.response.data.errors) {

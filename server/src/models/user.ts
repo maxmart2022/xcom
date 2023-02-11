@@ -1,7 +1,6 @@
 import mongoose, { Document, Model, ObjectId } from 'mongoose';
 import jwt from 'jsonwebtoken';
 import { roles } from '../constants/roles';
-import { AccessForbidden } from '../errors/access-forbidden-error';
 import { Password } from '../services/password';
 
 interface UserAttrs {
@@ -18,7 +17,11 @@ interface TokenAttrs {
 
 interface UserModel extends Model<UserDoc> {
 	build(attrs: UserAttrs): UserDoc;
-	generateAuthToken(user: TokenAttrs): UserDoc;
+	generateAuthToken(
+		user: TokenAttrs,
+		secret: string,
+		expiresIn: string
+	): UserDoc;
 }
 
 interface UserDoc extends Document {
@@ -78,7 +81,11 @@ userSchema.statics.build = (attrs: UserAttrs) => {
 	return new User(attrs);
 };
 
-userSchema.statics.generateAuthToken = (user: TokenAttrs) => {
+userSchema.statics.generateAuthToken = (
+	user: TokenAttrs,
+	secret,
+	expiresIn
+) => {
 	return jwt.sign(
 		{
 			id: user._id,
@@ -86,8 +93,8 @@ userSchema.statics.generateAuthToken = (user: TokenAttrs) => {
 			isSuperUser: user.isSuperUser,
 			isActive: user.isActive,
 		},
-		process.env.JWT_KEY!,
-		{ expiresIn: '5m' }
+		secret,
+		{ expiresIn }
 	);
 };
 

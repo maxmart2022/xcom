@@ -37,9 +37,7 @@ const signup = async (req: Request, res: Response) => {
 	user.role = role;
 	await user.save();
 
-	const access_token = User.generateAuthToken(user);
-
-	res.status(201).send({ access_token, type: 'Bearer', expires_in: '5m' });
+	res.status(201).send(user);
 };
 
 const signin = async (req: Request, res: Response) => {
@@ -54,9 +52,17 @@ const signin = async (req: Request, res: Response) => {
 	);
 	if (!isPasswordMatch) throw new BadRequestError('Invalid Credentials');
 
-	const access_token = User.generateAuthToken(user);
+	const access_token = User.generateAuthToken(user, process.env.JWT_KEY!, '5m');
 
-	res.status(201).send({ access_token, type: 'Bearer', expires_in: '5m' });
+	const refresh_token = User.generateAuthToken(
+		user,
+		process.env.REFRESH_TOKEN!,
+		'2d'
+	);
+
+	res
+		.status(201)
+		.send({ access_token, type: 'Bearer', refresh_token, expires_in: '5m' });
 };
 
 const viewUser = async (req: Request, res: Response, next: NextFunction) => {
