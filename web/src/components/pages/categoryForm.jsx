@@ -64,7 +64,7 @@ const CategoryForm = () => {
         <MyInput
           name="categoryName"
           placeholder="Name"
-          value={values.name}
+          value={values.categoryName}
           onChange={handleChange}
         />
       </div>

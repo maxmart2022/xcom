@@ -28,23 +28,21 @@ const useForm = (initialValues, validationSchema) => {
   //   console.log(values);
   //   validate();
   // };
-
   const handleChange = async (event) => {
     event.persist();
     setValues((prevValues) => {
       const updatedValues = { ...prevValues };
       const value = prevValues[event.target.name];
-      if (Array.isArray(value)) {
-        const index = value.findIndex((val) => val.name === event.target.name);
-        if (index !== -1) {
-          value[index].value = event.target.value;
-        } else {
-          value.push({
-            name: event.target.name,
-            value: event.target.value,
-          });
-        }
+      if (typeof value === "string") {
+        updatedValues[event.target.name] = event.target.value;
+      } else if (Array.isArray(value)) {
+        value.push(event.target.value);
         updatedValues[event.target.name] = value;
+      } else if (typeof value === "object") {
+        updatedValues[event.target.name] = {
+          ...value,
+          [event.target.name]: event.target.value,
+        };
       } else {
         updatedValues[event.target.name] = event.target.value;
       }
