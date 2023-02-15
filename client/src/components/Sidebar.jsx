@@ -1,21 +1,8 @@
 import React from 'react';
-import {
-	Box,
-	Drawer,
-	IconButton,
-	List,
-	ListItem,
-	ListItemButton,
-	ListItemIcon,
-	ListItemText,
-	Typography,
-	useTheme,
-} from '@mui/material';
-import { Menu as MenuIcon, ChevronRightOutlined } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Box, Drawer, IconButton, Typography, useTheme } from '@mui/material';
+import { Menu as MenuIcon } from '@mui/icons-material';
 import FlexBetween from './FlexBetween';
-import navItems from 'menu/navItems';
+import SideMenu from './common/SideMenu';
 
 const Sidebar = ({
 	drawerWidth,
@@ -23,14 +10,7 @@ const Sidebar = ({
 	setIsSidebarOpen,
 	isNonMobile,
 }) => {
-	const { pathname } = useLocation();
-	const [active, setActive] = useState('');
-	const navigate = useNavigate();
 	const theme = useTheme();
-
-	useEffect(() => {
-		setActive(pathname.substring(1));
-	}, [pathname]);
 
 	return (
 		<Box component='nav'>
@@ -66,55 +46,7 @@ const Sidebar = ({
 								)}
 							</FlexBetween>
 						</Box>
-						<List>
-							{navItems.map(({ text, icon }) => {
-								if (!icon) {
-									return (
-										<Typography key={text} sx={{ m: '2.25rem 0 1rem 3rem' }}>
-											{text}
-										</Typography>
-									);
-								}
-								const lcText = text.toLowerCase();
-
-								return (
-									<ListItem key={text} disablePadding>
-										<ListItemButton
-											onClick={() => {
-												navigate(`/${lcText}`);
-												setActive(lcText);
-											}}
-											sx={{
-												backgroundColor:
-													active === lcText
-														? theme.palette.secondary[300]
-														: 'transparent',
-												color:
-													active === lcText
-														? theme.palette.primary[600]
-														: theme.palette.secondary[100],
-											}}
-										>
-											<ListItemIcon
-												sx={{
-													ml: '2rem',
-													color:
-														active === lcText
-															? theme.palette.primary[600]
-															: theme.palette.secondary[200],
-												}}
-											>
-												{icon}
-											</ListItemIcon>
-											<ListItemText primary={text} />
-											{active === lcText && (
-												<ChevronRightOutlined sx={{ ml: 'auto' }} />
-											)}
-										</ListItemButton>
-									</ListItem>
-								);
-							})}
-						</List>
+						<SideMenu />
 					</Box>
 				</Drawer>
 			)}
