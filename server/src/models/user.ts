@@ -13,15 +13,12 @@ interface TokenAttrs {
 	email: string;
 	isSuperUser: boolean;
 	isActive: boolean;
+	role: string;
 }
 
 interface UserModel extends Model<UserDoc> {
 	build(attrs: UserAttrs): UserDoc;
-	generateAuthToken(
-		user: TokenAttrs,
-		secret: string,
-		expiresIn: string
-	): UserDoc;
+	generateAuthToken(user: TokenAttrs, secret: string, expiry: number): UserDoc;
 }
 
 interface UserDoc extends Document {
@@ -43,6 +40,7 @@ const userSchema = new mongoose.Schema(
 			enum: [...Object.values(roles), process.env.SUPERADMIN_ROLE!],
 			default: roles.GUEST,
 		},
+		isActive: { type: Boolean, default: true },
 		isSuperUser: { type: Boolean, default: false },
 		permissions: [
 			{
@@ -81,20 +79,17 @@ userSchema.statics.build = (attrs: UserAttrs) => {
 	return new User(attrs);
 };
 
-userSchema.statics.generateAuthToken = (
-	user: TokenAttrs,
-	secret,
-	expiresIn
-) => {
+userSchema.statics.generateAuthToken = (user: TokenAttrs, secret, expiry) => {
 	return jwt.sign(
 		{
 			id: user._id,
 			email: user.email,
 			isSuperUser: user.isSuperUser,
 			isActive: user.isActive,
+			role: user.role,
+			exp: Math.floor(Date.now() / 1000 + expiry),
 		},
-		secret,
-		{ expiresIn }
+		secret
 	);
 };
 

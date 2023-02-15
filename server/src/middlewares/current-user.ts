@@ -4,9 +4,10 @@ import { NotAuthorizedError } from '../errors/not-authorized-error';
 
 interface UserPayload {
 	email: string;
-	_id: string;
+	id: string;
 	isActive: boolean;
 	isSuperUser: boolean;
+	role: string;
 }
 
 declare global {
@@ -22,15 +23,26 @@ export const currentUser = (
 	res: Response,
 	next: NextFunction
 ) => {
-	const token = req.header('x-access-token');
+	const authHeader =
+		req.header('x-access-token') || req.header('x-refresh-token');
+	if (!authHeader) {
+		throw new NotAuthorizedError();
+	}
+	const token = authHeader.split(' ')[1];
 	if (!token) {
 		throw new NotAuthorizedError();
 	}
 
+	let secret = req.header('x-refresh-token')
+		? process.env.REFRESH_TOKEN!
+		: process.env.JWT_KEY!;
+
 	try {
-		const payload = jwt.verify(token, process.env.JWT_KEY!) as UserPayload;
+		const payload = jwt.verify(token, secret) as UserPayload;
 		req.currentUser = payload;
-	} catch (ex) {}
+	} catch (ex) {
+		throw new NotAuthorizedError();
+	}
 
 	next();
 };

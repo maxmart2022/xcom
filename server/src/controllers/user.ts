@@ -52,17 +52,23 @@ const signin = async (req: Request, res: Response) => {
 	);
 	if (!isPasswordMatch) throw new BadRequestError('Invalid Credentials');
 
-	const access_token = User.generateAuthToken(user, process.env.JWT_KEY!, '5m');
+	const access_token = User.generateAuthToken(
+		user,
+		process.env.JWT_KEY!,
+		5 * 60
+	);
 
 	const refresh_token = User.generateAuthToken(
 		user,
 		process.env.REFRESH_TOKEN!,
-		'2d'
+		48 * 60 * 60
 	);
+
+	const expiresAt = Math.floor(Date.now() / 1000 + 5 * 60);
 
 	res
 		.status(201)
-		.send({ access_token, type: 'Bearer', refresh_token, expires_in: '5m' });
+		.send({ access_token, type: 'Bearer', refresh_token, expiresAt });
 };
 
 const viewUser = async (req: Request, res: Response, next: NextFunction) => {

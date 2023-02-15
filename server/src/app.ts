@@ -7,6 +7,7 @@ import { errorHandler } from './middlewares/error-handler';
 import { authRouter } from './routes/auth';
 import { requireSuperman } from './middlewares/require-superman';
 import { actionRouter } from './routes/action';
+import { tokenRouter } from './routes/token';
 
 const app = express();
 app.set('trust proxy', true);
@@ -27,6 +28,7 @@ app.use(function (req, res, next) {
 app.use(requireSuperman);
 
 app.use(authRouter);
+app.use(tokenRouter);
 app.use(actionRouter);
 
 app.all('*', (req, res) => {

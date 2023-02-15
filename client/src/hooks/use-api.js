@@ -6,12 +6,17 @@ const useApi = () => {
 	const [error, setError] = useState(null);
 	const [data, setData] = useState(null);
 
-	const request = async (method, url, payload) => {
+	const request = async (method, url, payload, headers = {}) => {
 		try {
 			setLoading(true);
 			setError(null);
 			setData(null);
-			const response = await axios.request({ method, url, data: payload });
+			const response = await axios.request({
+				method,
+				url,
+				data: payload,
+				headers,
+			});
 			setData(response.data);
 			return response.data;
 		} catch (err) {

@@ -20,7 +20,7 @@ router.post('/api/auth/signup', signupValidator, validateRequest, signup);
 router.post('/api/auth/signin', signinValidator, validateRequest, signin);
 router.get('/api/auth/list', currentUser, listUsers);
 router.get('/api/auth/view/:id', currentUser, viewUser);
-router.get(
+router.put(
 	'/api/auth/update/:id',
 	currentUser,
 	userUpdateValidator,
@@ -28,7 +28,7 @@ router.get(
 	updateUser
 );
 router.get('/api/auth/currentUser', currentUser, (req, res) => {
-	res.status(200).send(req.currentUser);
+	res.status(200).send({ currentUser: req.currentUser || null });
 });
 
 export { router as authRouter };

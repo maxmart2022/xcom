@@ -25,7 +25,14 @@ const Form = () => {
 	const doSubmit = async (payload) => {
 		const responseData = await login(payload);
 		if (responseData) {
-			localStorage.setItem('x-access-token', responseData.access_token);
+			localStorage.setItem(
+				'accessToken',
+				JSON.stringify({
+					value: responseData.access_token,
+					expiresAt: responseData.expiresAt,
+				})
+			);
+			localStorage.setItem('refreshToken', responseData.refresh_token);
 			navigate('/dashboard');
 		}
 	};
@@ -96,11 +103,7 @@ const Form = () => {
 						error={!!errors.password}
 						helperText={errors.password}
 					/>
-					{error && (
-						<Alert severity='error'>
-							{error.message ? error.message : JSON.stringify(error)}
-						</Alert>
-					)}
+					{error && <Alert severity='error'>{JSON.stringify(error)}</Alert>}
 					<Box mt='20px'>
 						<Button
 							type='submit'
