@@ -1,46 +1,12 @@
-import {
-	Box,
-	Button,
-	TextField,
-	Typography,
-	useTheme,
-	CircularProgress,
-	Alert,
-} from '@mui/material';
-import { VpnKeyOutlined, HomeOutlined } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { Box, Button, Typography, useTheme } from '@mui/material';
+import { HomeOutlined } from '@mui/icons-material';
 import Header from 'components/Header';
 import FlexBetween from 'components/FlexBetween';
 import ThemeToggler from 'components/ThemeToggler';
-import loginSchema from 'validations/login';
-import useForm from 'hooks/use-form';
-import useAuthService from 'services/authService';
+import LoginForm from 'forms/LoginForm';
 
 const Form = () => {
 	const theme = useTheme();
-	const navigate = useNavigate();
-	const initialValues = { email: '', password: '' };
-	const { login, loading, error } = useAuthService();
-
-	const doSubmit = async (payload) => {
-		const responseData = await login(payload);
-		if (responseData) {
-			localStorage.setItem(
-				'accessToken',
-				JSON.stringify({
-					value: responseData.access_token,
-					expiresAt: responseData.expiresAt,
-				})
-			);
-			localStorage.setItem('refreshToken', responseData.refresh_token);
-			navigate('/dashboard');
-		}
-	};
-	const { values, handleChange, handleSubmit, errors } = useForm(
-		initialValues,
-		loginSchema,
-		doSubmit
-	);
 
 	return (
 		<Box m='1.5rem 2.5rem'>
@@ -77,53 +43,9 @@ const Form = () => {
 				<Typography variant='h3' fontWeight='bold'>
 					LOGIN
 				</Typography>
-				<form style={{ display: 'contents' }} onSubmit={handleSubmit}>
-					<TextField
-						type={'email'}
-						variant='outlined'
-						placeholder='Email'
-						name='email'
-						label='Email'
-						autoFocus
-						margin='normal'
-						value={values.email || ''}
-						onChange={handleChange}
-						error={!!errors.email}
-						helperText={errors.email}
-					/>
-					<TextField
-						type='password'
-						label='Password'
-						variant='outlined'
-						placeholder='Password'
-						name='password'
-						margin='normal'
-						value={values.password || ''}
-						onChange={handleChange}
-						error={!!errors.password}
-						helperText={errors.password}
-					/>
-					{error && <Alert severity='error'>{JSON.stringify(error)}</Alert>}
-					<Box mt='20px'>
-						<Button
-							type='submit'
-							sx={{
-								backgroundColor: theme.palette.secondary[300],
-								color: theme.palette.background.alt,
-								fontSize: '14px',
-								fontWeight: 'bold',
-								padding: '10px 20px',
-								':hover': {
-									backgroundColor: 'none',
-								},
-							}}
-						>
-							<VpnKeyOutlined sx={{ mr: '10px' }} />
-							Login
-						</Button>
-					</Box>
-				</form>
-				{loading && <CircularProgress />}
+
+				<LoginForm />
+
 				<Box mt='20px'>
 					<Button>Forgot Password?</Button>
 				</Box>

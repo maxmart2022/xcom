@@ -7,6 +7,7 @@ import { themeSettings } from 'theme';
 import Login from 'pages/authentication';
 import Dashboard from 'pages/dashboard';
 import Layout from 'pages/layout';
+import Actions from 'pages/actions';
 
 function App() {
 	const { state } = useContext(ThemeContext);
@@ -20,6 +21,7 @@ function App() {
 						<Route path='/' element={<Login />}></Route>
 						<Route element={<Layout />}>
 							<Route path='/dashboard' element={<Dashboard />} />
+							<Route path='/actions' element={<Actions />} />
 						</Route>
 					</Routes>
 				</ThemeProvider>
