@@ -8,16 +8,16 @@ build:
   local:
     push: false
   artifacts:
-    - image: maxmart/server
-      context: server
+    - image: maxmart/api
+      context: api
       docker:
         dockerfile: Dockerfile
       sync:
         manual:
           - src: 'src/**/*.ts'
             dest: .
-    - image: maxmart/client
-      context: client
+    - image: maxmart/web
+      context: web
       docker:
         dockerfile: Dockerfile
       sync:
