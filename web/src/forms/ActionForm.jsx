@@ -6,7 +6,7 @@ import useActionService from 'services/actionService';
 import actionSchema from 'validations/actionSchema';
 import useForm from 'hooks/use-form';
 
-const ActionForm = () => {
+const ActionForm = ({ onAddAction }) => {
 	const theme = useTheme();
 	const initialValues = { name: '' };
 
@@ -14,6 +14,9 @@ const ActionForm = () => {
 
 	const doSubmit = async (payload) => {
 		const responseData = await newAction(payload);
+		if (responseData) {
+			onAddAction();
+		}
 	};
 	const { values, handleChange, handleSubmit, errors } = useForm(
 		initialValues,

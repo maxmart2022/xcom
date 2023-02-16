@@ -16,11 +16,12 @@ const useActionService = () => {
 		return responseData;
 	};
 
-	const newAction = async (data) => {
+	const newAction = async (payload) => {
+		console.log('New Action called');
 		const responseData = await request(
 			'post',
 			`${API_URL}/new`,
-			data,
+			payload,
 			authHeader()
 		);
 		return responseData;

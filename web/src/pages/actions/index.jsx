@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Paper, Grid, useTheme } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import Header from 'components/Header';
@@ -7,6 +7,7 @@ import ActionForm from 'forms/ActionForm';
 
 const Actions = () => {
 	const theme = useTheme();
+	const [refreshData, setRefreshData] = useState(false);
 	const { getActions, loading, error, data } = useActionService();
 	console.log('data', data);
 
@@ -15,7 +16,11 @@ const Actions = () => {
 			await getActions();
 		};
 		getData();
-	}, [getActions]);
+	}, [refreshData]);
+
+	const handleAddAction = () => {
+		setRefreshData(true);
+	};
 
 	const columns = [
 		{
@@ -27,6 +32,10 @@ const Actions = () => {
 			headerName: 'Name',
 		},
 	];
+
+	const localeText = {
+		noRowsLabel: 'No data added',
+	};
 
 	return (
 		<Box m='1.5rem 2.5rem'>
@@ -59,17 +68,18 @@ const Actions = () => {
 				}}
 			>
 				<Grid container spacing={2}>
-					<Grid item xs={8} container height='75vh'>
+					<Grid item xs={8} container>
 						<DataGrid
+							autoHeight
 							loading={loading || !data}
 							getRowId={(row) => row._id}
 							rows={data || []}
 							columns={columns}
-							localeText='No Actions added'
+							localeText={localeText}
 						/>
 					</Grid>
 					<Grid item xs={4}>
-						<ActionForm />
+						<ActionForm onAddAction={handleAddAction} />
 					</Grid>
 				</Grid>
 			</Box>
