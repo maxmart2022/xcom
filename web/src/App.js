@@ -1,29 +1,35 @@
-import { Routes, Route } from "react-router-dom";
-
-import AdminDashboard from "./components/admin/AdminDashboard";
-// import CustomerPage from "./components/customer/CustomerPage";
-// import { RouteWithCommonComponent } from "./components/customer/CustomerPageLayout";
-import { Announcement } from "./components/pages/Announcement";
-import BrandForm from "./components/pages/brandForm";
-import CategoryForm from "./components/pages/categoryForm";
-import { Invoice } from "./components/pages/Invoice";
-import LoginForm from "./components/pages/loginForm";
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { createTheme } from '@mui/material/styles';
+import { useContext, useMemo } from 'react';
+import { ThemeContext } from 'state';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { themeSettings } from 'theme';
+import Login from 'pages/authentication';
+import Dashboard from 'pages/dashboard';
+import Layout from 'pages/layout';
+import Actions from 'pages/actions';
+import Modules from 'pages/modules';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <Routes>
-          <Route exact path="/" element={<Announcement />} />
-          <Route path="/invoice" element={<Invoice />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/login" element={<LoginForm />} />
-          <Route path="/category/new" element={<CategoryForm />} />
-          <Route path="/brand/new" element={<BrandForm />} />
-        </Routes>
-      </header>
-    </div>
-  );
+	const { state } = useContext(ThemeContext);
+	const theme = useMemo(() => createTheme(themeSettings(state)), [state]);
+	return (
+		<div className='app'>
+			<BrowserRouter>
+				<ThemeProvider theme={theme}>
+					<CssBaseline />
+					<Routes>
+						<Route path='/' element={<Login />}></Route>
+						<Route element={<Layout />}>
+							<Route path='/dashboard' element={<Dashboard />} />
+							<Route path='/actions' element={<Actions />} />
+							<Route path='/modules' element={<Modules />} />
+						</Route>
+					</Routes>
+				</ThemeProvider>
+			</BrowserRouter>
+		</div>
+	);
 }
 
 export default App;

@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api
+          image: maxmart/api
+          env:
+            - name: MONGO_URI
+              value: 'mongodb://api-mongo-srv:27017/maxmart'
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-key
+                  key: JWT_KEY
+            - name: REFRESH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-refresh
+                  key: REFRESH_TOKEN
+            - name: SUPERADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: superman-email
+                  key: SUPERADMIN_EMAIL
+            - name: SUPERADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: superman-password
+                  key: SUPERADMIN_PASSWORD
+            - name: SUPERADMIN_ROLE
+              valueFrom:
+                secretKeyRef:
+                  name: superman-role
+                  key: SUPERADMIN_ROLE
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-srv
+spec:
+  selector:
+    app: api
+  ports:
+    - name: api
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

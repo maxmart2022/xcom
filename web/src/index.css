@@ -1,33 +1,38 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+html,
+body,
+#root,
+.app {
+	height: 100%;
+	width: 100%;
+	font-family: 'Inter', sans-serif;
+}
+.custom-header-class {
+	width: 20%;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+.custom-header-class:not(:last-child) {
+	width: calc(
+		20% - 32px
+	); /* Subtract 32px to account for the checkbox column */
 }
 
-/* 0.0 - Base Style */
-:root {
-  --primary-color: #ff6b6b;
-  --secondary-color: #794afa;
-  --secondary-dark-color: #453c5c;
-
-  --white-color: #ffffff;
-  --ligt-bg-color: #f2f3f5;
-  --light-text-color: #7c899a;
+::-webkit-scrollbar {
+	width: 2px;
 }
 
-body {
-  color: var(--primary-color);
+/* Track */
+::-webkit-scrollbar-track {
+	background: #7a7f9d;
 }
 
-button {
-  background-color: var(--secondary-color);
-  color: var(--primary-color);
+/* Handle */
+::-webkit-scrollbar-thumb {
+	background: #21295c;
+}
+
+/* Handle on Hover */
+::-webkit-scrollbar-track:hover {
+	background: #21295c;
 }
