@@ -8,19 +8,19 @@ build:
   local:
     push: false
   artifacts:
-    - image: maxmartapp/xcom-api
-      context: xcom-api
+    - image: maxmart/api
+      context: api
       docker:
         dockerfile: Dockerfile
       sync:
         manual:
-          - dest: .
-            src: "src/**/*.ts"
-    - image: maxmartapp/web
+          - src: "src/**/*.ts"
+            dest: .
+    - image: maxmart/web
       context: web
       docker:
         dockerfile: Dockerfile
       sync:
         manual:
-          - src: "**/*.jsx"
+          - src: "src/**/*.{js,jsx}"
             dest: .

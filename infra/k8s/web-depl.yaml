@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: maxmartapp/web
+          image: maxmart/web
 ---
 apiVersion: v1
 kind: Service

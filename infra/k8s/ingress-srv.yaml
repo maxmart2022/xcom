@@ -7,16 +7,16 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-    - host: xcom.dev
+    - host: maxmart.dev
       http:
         paths:
           - path: /api/?(.*)
             pathType: Prefix
             backend:
               service:
-                name: xcom-api-srv
+                name: api-srv
                 port:
-                  number: 4000
+                  number: 3000
           - path: /?(.*)
             pathType: Prefix
             backend:
