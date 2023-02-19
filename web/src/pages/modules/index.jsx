@@ -1,25 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, useTheme } from '@mui/material';
+import { Box, Grid, Stack, useTheme, Button } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import { Edit } from '@mui/icons-material';
 import Header from 'components/Header';
-import useActionService from 'services/actionService';
-import ActionForm from 'forms/ActionForm';
+import useModuleService from 'services/moduleService';
+import ModuleForm from 'forms/ModuleForm';
 
-const Actions = () => {
+const Modules = () => {
 	const theme = useTheme();
 	const [refreshData, setRefreshData] = useState(false);
-	const { getActions, loading, data } = useActionService();
+	const { getModules, loading, data } = useModuleService();
+	const [selectedModule, setSelectedModule] = useState(null);
 
 	useEffect(() => {
 		const getData = async () => {
-			await getActions();
+			await getModules();
 		};
 		getData();
 		// eslint-disable-next-line
 	}, [refreshData]);
 
-	const handleAddAction = () => {
+	const handleAddModule = () => {
 		setRefreshData(!refreshData);
+	};
+
+	const handleEdit = (moduleId) => {
+		const module = data.find((m) => m._id === moduleId);
+		setSelectedModule(module);
 	};
 
 	const columns = [
@@ -27,6 +34,31 @@ const Actions = () => {
 			field: 'name',
 			headerName: 'Name',
 			flex: 1,
+		},
+		{
+			field: 'actions',
+			headerName: 'Rights',
+			flex: 1,
+			valueGetter: (params) =>
+				params.row.actions.map((action) => action.name).join(', '),
+		},
+		{
+			field: '',
+			headerName: ' ',
+			flex: 1,
+			renderCell: (params) => (
+				<Stack direction='row' spacing={2}>
+					<Button
+						variant='contained'
+						size='small'
+						color='secondary'
+						startIcon={<Edit />}
+						onClick={() => handleEdit(params.row._id)}
+					>
+						Edit
+					</Button>
+				</Stack>
+			),
 		},
 	];
 
@@ -36,7 +68,7 @@ const Actions = () => {
 
 	return (
 		<Box m='1.5rem 2.5rem'>
-			<Header title='Actions' subtitle='List of Actions' />
+			<Header title='Modules' subtitle='List of Modules' />
 			<Box
 				mt='40px'
 				sx={{
@@ -76,7 +108,10 @@ const Actions = () => {
 						/>
 					</Grid>
 					<Grid item xs={4}>
-						<ActionForm onAddAction={handleAddAction} />
+						<ModuleForm
+							onAddModule={handleAddModule}
+							selectedModule={selectedModule}
+						/>
 					</Grid>
 				</Grid>
 			</Box>
@@ -84,4 +119,4 @@ const Actions = () => {
 	);
 };
 
-export default Actions;
+export default Modules;

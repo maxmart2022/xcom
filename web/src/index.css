@@ -8,6 +8,15 @@ body,
 	width: 100%;
 	font-family: 'Inter', sans-serif;
 }
+.custom-header-class {
+	width: 20%;
+}
+
+.custom-header-class:not(:last-child) {
+	width: calc(
+		20% - 32px
+	); /* Subtract 32px to account for the checkbox column */
+}
 
 ::-webkit-scrollbar {
 	width: 2px;

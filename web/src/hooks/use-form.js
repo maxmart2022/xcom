@@ -20,11 +20,49 @@ const useForm = (initialValues, validationSchema, doSubmit) => {
 	};
 
 	const handleChange = async (event) => {
+		console.log('Input changed');
 		event.persist();
 		validate();
-		setValues({
-			...values,
-			[event.target.name]: event.target.value,
+		const { name, value, checked } = event.target;
+		setValues((prevValues) => {
+			if (Array.isArray(prevValues[name])) {
+				return {
+					...prevValues,
+					[name]: [...prevValues[name], value],
+				};
+			} else {
+				return {
+					...prevValues,
+					[name]: value,
+				};
+			}
+		});
+	};
+
+	const handleCheckboxChange = (event) => {
+		event.persist();
+		const { name, checked, value } = event.target;
+		setValues((prevValues) => {
+			if (checked) {
+				if (Array.isArray(prevValues[name])) {
+					return {
+						...prevValues,
+						[name]: [...prevValues[name], value],
+					};
+				} else {
+					return {
+						...prevValues,
+						[name]: value,
+					};
+				}
+			} else {
+				return {
+					...prevValues,
+					[name]: [
+						...prevValues[name].filter((prevValue) => prevValue !== value),
+					],
+				};
+			}
 		});
 	};
 
@@ -33,11 +71,13 @@ const useForm = (initialValues, validationSchema, doSubmit) => {
 		if (await validate()) {
 			doSubmit(values);
 		}
+		setValues(initialValues);
 	};
 
 	return {
 		values,
 		handleChange,
+		handleCheckboxChange,
 		handleSubmit,
 		errors,
 	};

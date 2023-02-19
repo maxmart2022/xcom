@@ -19,7 +19,6 @@ const SideMenu = () => {
 	const navigate = useNavigate();
 	const theme = useTheme();
 	const user = useContext(UserContext);
-	console.log(user);
 
 	useEffect(() => {
 		setActive(pathname.substring(1));

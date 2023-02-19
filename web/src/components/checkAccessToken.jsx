@@ -29,11 +29,9 @@ const CheckAccessToken = ({ children }) => {
 						setIsTokenValid(false);
 					}
 				} catch (error) {
-					console.error('Refresh Error:', error);
 					setIsTokenValid(false);
 				}
 			} else {
-				console.log('valid');
 				setIsTokenValid(true);
 			}
 			setIsLoading(false);
