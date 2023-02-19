@@ -76,6 +76,7 @@ const useForm = (initialValues, validationSchema, doSubmit) => {
 
 	return {
 		values,
+		setValues,
 		handleChange,
 		handleCheckboxChange,
 		handleSubmit,
