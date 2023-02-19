@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 
 const useForm = (initialValues, validationSchema) => {
   const [values, setValues] = useState(initialValues);
@@ -19,51 +20,44 @@ const useForm = (initialValues, validationSchema) => {
     }
   };
 
-  // const handleChange = async (event) => {
-  //   event.persist();
-  //   setValues({
-  //     ...values,
-  //     [event.target.name]: event.target.value,
-  //   });
-  //   console.log(values);
-  //   validate();
-  // };
   const handleChange = async (event) => {
     event.persist();
-    setValues((prevValues) => {
-      const updatedValues = { ...prevValues };
-      const value = prevValues[event.target.name];
-      if (typeof value === "string") {
-        updatedValues[event.target.name] = event.target.value;
-      } else if (Array.isArray(value)) {
-        value.push(event.target.value);
-        updatedValues[event.target.name] = value;
-      } else if (typeof value === "object") {
-        updatedValues[event.target.name] = {
-          ...value,
-          [event.target.name]: event.target.value,
-        };
-      } else {
-        updatedValues[event.target.name] = event.target.value;
-      }
-      return updatedValues;
+    const { name, value } = event.target;
+    setValues((values) => {
+      return { ...values, [name]: value };
     });
-
     console.log(values);
     validate();
   };
 
-  const handleSubmit = async (event) => {
+  const handleArrayChange = (index, propertyName) => (e) => {
+    const newPropertyValues = [...values[propertyName]];
+    newPropertyValues[index] = e.target.value;
+    setValues({ ...values, [propertyName]: newPropertyValues });
+    console.log(values);
+  };
+
+  const handleSubmit = async (event, url, callback) => {
     event.preventDefault();
     if (await validate()) {
-      console.log(values);
+      try {
+        const response = await axios.post(url, values);
+        console.log(response.data);
+        console.log(values);
+        setValues(initialValues);
+        callback(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
   return {
     values,
+    setValues,
     handleChange,
     handleSubmit,
+    handleArrayChange,
     errors,
   };
 };

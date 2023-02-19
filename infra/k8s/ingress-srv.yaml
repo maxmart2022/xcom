@@ -14,9 +14,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: xcom-api-srv
+                name: server-srv
                 port:
-                  number: 4000
+                  number: 3000
           - path: /?(.*)
             pathType: Prefix
             backend:

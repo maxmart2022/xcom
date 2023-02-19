@@ -8,8 +8,8 @@ build:
   local:
     push: false
   artifacts:
-    - image: maxmartapp/xcom-api
-      context: xcom-api
+    - image: maxmartapp/api
+      context: api
       docker:
         dockerfile: Dockerfile
       sync:

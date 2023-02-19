@@ -1,178 +1,101 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import * as Yup from "yup";
-import useForm from "../../helpers/useForm";
-import { MyInput, MyButton } from "../common/ReusableComponents";
+import * as yup from "yup";
 
-const BrandForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [parent, setParent] = useState(false);
-  const [subbrand, setSubbrand] = useState(false);
-  const [subbrandFields, setSubbrandFields] = useState([{ id: 1 }]);
-  const categories = [
-    { id: 1, name: "mobile phones" },
-    { id: 2, name: "laptops" },
-    { id: 3, name: "headphones" },
-    { id: 4, name: "tablets" },
-  ];
+const schema = yup.object().shape({
+  brand: yup.string().required("Brand is required"),
+  parentBrand: yup.string().nullable().notRequired(),
+});
 
-  const navigate = useNavigate();
-  const urlEndPoint = "https://xcom.dev/api/brand/new";
-
-  const initialValues = {
-    name: "",
-    parent: false,
-    subbrand: false,
-  };
-
-  const validationSchema = Yup.object().shape({
-    name: Yup.string().required(),
+function BrandForm() {
+  const [values, setValues] = useState({
+    brand: "",
+    parentBrand: null,
   });
 
-  function handleParentChange(event) {
-    setParent(event.target.checked);
-  }
+  const [errors, setErrors] = useState({});
 
-  function handleSubbrandChange(event) {
-    setSubbrand(event.target.checked);
-  }
+  const [showParentBrand, setShowParentBrand] = useState(false);
 
-  function handleSubbrandAddField() {
-    setSubbrandFields([...subbrandFields, { id: subbrandFields.length + 1 }]);
-  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-  function handleSubbrandRemoveField() {
-    if (subbrandFields.length > 1) {
-      setSubbrandFields(subbrandFields.slice(0, subbrandFields.length - 1));
-    }
-  }
-
-  const handleForm = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.post(urlEndPoint, values);
-      console.log(response.data);
-      setIsLoading(false);
-      navigate("/brand/new");
-    } catch (error) {
-      console.error(error);
-      setIsLoading(false);
-    }
+    schema
+      .validate(values, { abortEarly: false })
+      .then(() => {
+        console.log("Values:", values);
+        setValues({ brand: "", parentBrand: null });
+        setErrors({});
+      })
+      .catch((err) => {
+        const newErrors = {};
+        err.inner.forEach((e) => {
+          newErrors[e.path] = e.message;
+        });
+        setErrors(newErrors);
+      });
   };
 
-  const { values, handleChange, handleSubmit, errors } = useForm(
-    initialValues,
-    validationSchema
-  );
+  const handleChange = (e) => {
+    setValues({ ...values, [e.target.id]: e.target.value });
+  };
+
+  const handleDeleteParentBrand = () => {
+    setValues({ ...values, parentBrand: null });
+  };
+
+  const handleShowParentBrand = (e) => {
+    setShowParentBrand(e.target.checked);
+  };
 
   return (
-    <form style={formStyles.form} onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
       <div>
-        <MyInput
-          name="name"
-          placeholder="Name"
-          value={values.name}
+        <label htmlFor="brand">Brand:</label>
+        <input
+          type="text"
+          id="brand"
+          value={values.brand}
           onChange={handleChange}
-          style={formStyles.input}
         />
+        {errors.brand && <div>{errors.brand}</div>}
       </div>
-      <label htmlFor="parent">Parent present:</label>
-      <input
-        type="checkbox"
-        id="parent"
-        checked={parent}
-        onChange={handleParentChange}
-      />
-      {parent === true && (
-        <div id="inputFields">
+      <div>
+        <label htmlFor="show-parent-brand">Parent Brand:</label>
+        <input
+          type="checkbox"
+          id="show-parent-brand"
+          checked={showParentBrand}
+          onChange={handleShowParentBrand}
+        />
+        {showParentBrand && (
           <div>
-            <label>Input field:</label>
-            <select>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+            {values.parentBrand === null ? (
+              <select
+                id="parent-brand"
+                value={""}
+                onChange={(e) =>
+                  setValues({ ...values, parentBrand: e.target.value })
+                }
+              >
+                <option value="">Select a parent brand</option>
+                <option value="Brand 1">Brand 1</option>
+                <option value="Brand 2">Brand 2</option>
+                <option value="Brand 3">Brand 3</option>
+                {/* Add more options as necessary */}
+              </select>
+            ) : (
+              <div>
+                <div>{values.parentBrand}</div>
+                <button onClick={handleDeleteParentBrand}>Delete</button>
+              </div>
+            )}
+            {errors.parentBrand && <div>{errors.parentBrand}</div>}
           </div>
-        </div>
-      )}
-      <label htmlFor="subbrand">Subbrand present:</label>
-      <input
-        type="checkbox"
-        id="subbrand"
-        checked={subbrand}
-        onChange={handleSubbrandChange}
-      />
-      {subbrand === true && (
-        <div id="inputFields">
-          {subbrandFields.map((field) => (
-            <div key={field.id}>
-              <label htmlFor={`field${field.id}`}>
-                Input field {field.id}:
-              </label>
-              <input
-                type="text"
-                id={`field${field.id}`}
-                onChange={handleChange}
-                placeholder="Subbrand name"
-              />
-            </div>
-          ))}
-          <button type="button" onClick={handleSubbrandAddField}>
-            Add Field
-          </button>
-          <button
-            type="button"
-            onClick={handleSubbrandRemoveField}
-            disabled={subbrandFields.length <= 1}
-          >
-            Remove Field
-          </button>
-        </div>
-      )}
-      <MyButton
-        onClick={handleForm}
-        disabled={isLoading}
-        style={formStyles.button}
-      >
-        Submit
-      </MyButton>
+        )}
+      </div>
+      <button type="submit">Add Brand</button>
     </form>
   );
-};
+}
 
 export default BrandForm;
-
-const formStyles = {
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "2rem",
-  },
-  input: {
-    width: "250px",
-    padding: "0.5rem",
-    margin: "1rem 0",
-    fontSize: "1.2rem",
-    border: "1px solid lightgray",
-  },
-  button: {
-    width: "100%",
-    padding: "1rem",
-    margin: "1rem 0",
-    backgroundColor: "#1890ff",
-    color: "white",
-    fontSize: "1.2rem",
-    border: "none",
-    cursor: "pointer",
-  },
-  error: {
-    color: "red",
-    fontSize: "0.8rem",
-    margin: "0.5rem 0",
-  },
-};
