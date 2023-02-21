@@ -1,28 +1,23 @@
-import useApi from 'hooks/use-api';
-import authHeader from './authHeader';
+import useApi from 'hooks/useApi';
+import useAuthHeader from './authHeader';
 
 const useActionService = () => {
 	const API_URL = 'https://maxmart.dev/api/action';
+	const headers = useAuthHeader();
 
 	const { request, loading, error, data } = useApi();
 
 	const getActions = async () => {
-		const responseData = await request(
-			'get',
-			`${API_URL}/list`,
-			null,
-			authHeader()
-		);
+		const responseData = await request('get', `${API_URL}/list`, null, headers);
 		return responseData;
 	};
 
 	const newAction = async (payload) => {
-		console.log('New Action called');
 		const responseData = await request(
 			'post',
 			`${API_URL}/new`,
 			payload,
-			authHeader()
+			headers
 		);
 		return responseData;
 	};

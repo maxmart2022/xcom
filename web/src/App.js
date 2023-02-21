@@ -9,6 +9,9 @@ import Dashboard from 'pages/dashboard';
 import Layout from 'pages/layout';
 import Actions from 'pages/actions';
 import Modules from 'pages/modules';
+import RequireAuth from 'components/RequireAuth';
+import { AuthProvider } from 'state/AuthProvider';
+import PersistLogin from 'components/PersistLogin';
 
 function App() {
 	const { state } = useContext(ThemeContext);
@@ -18,14 +21,20 @@ function App() {
 			<BrowserRouter>
 				<ThemeProvider theme={theme}>
 					<CssBaseline />
-					<Routes>
-						<Route path='/' element={<Login />}></Route>
-						<Route element={<Layout />}>
-							<Route path='/dashboard' element={<Dashboard />} />
-							<Route path='/actions' element={<Actions />} />
-							<Route path='/modules' element={<Modules />} />
-						</Route>
-					</Routes>
+					<AuthProvider>
+						<Routes>
+							<Route path='/login' element={<Login />}></Route>
+							<Route element={<PersistLogin />}>
+								<Route element={<RequireAuth />}>
+									<Route element={<Layout />}>
+										<Route path='/dashboard' element={<Dashboard />} />
+										<Route path='/actions' element={<Actions />} />
+										<Route path='/modules' element={<Modules />} />
+									</Route>
+								</Route>
+							</Route>
+						</Routes>
+					</AuthProvider>
 				</ThemeProvider>
 			</BrowserRouter>
 		</div>

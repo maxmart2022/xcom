@@ -18,7 +18,7 @@ interface TokenAttrs {
 
 interface UserModel extends Model<UserDoc> {
 	build(attrs: UserAttrs): UserDoc;
-	generateAuthToken(user: TokenAttrs, secret: string, expiry: number): UserDoc;
+	generateAuthToken(user: TokenAttrs, secret: string, expiry: number): string;
 }
 
 interface UserDoc extends Document {
@@ -28,6 +28,7 @@ interface UserDoc extends Document {
 	isSuperUser: boolean;
 	isActive: boolean;
 	permissions: [{ module: ObjectId; actions: [ObjectId] }];
+	refreshToken: string[];
 }
 
 const userSchema = new mongoose.Schema(
@@ -56,6 +57,7 @@ const userSchema = new mongoose.Schema(
 				],
 			},
 		],
+		refreshToken: [String],
 	},
 	{
 		toJSON: {

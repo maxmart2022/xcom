@@ -41,6 +41,7 @@ const signupController = async (req: Request, res: Response) => {
 };
 
 const signinController = async (req: Request, res: Response) => {
+	const cookies = req.cookies;
 	const { email, password } = req.body;
 
 	const user = await User.findOne({ email });
@@ -52,23 +53,41 @@ const signinController = async (req: Request, res: Response) => {
 	);
 	if (!isPasswordMatch) throw new BadRequestError('Invalid Credentials');
 
-	const access_token = User.generateAuthToken(
-		user,
-		process.env.JWT_KEY!,
-		5 * 60
-	);
+	const access_token = User.generateAuthToken(user, process.env.JWT_KEY!, 15);
 
 	const refresh_token = User.generateAuthToken(
 		user,
 		process.env.REFRESH_TOKEN!,
-		48 * 60 * 60
+		24 * 60 * 60
 	);
+	let newRefreshTokenArray = !cookies?.jwt
+		? user.refreshToken
+		: user.refreshToken.filter((rt) => rt !== cookies.jwt);
+
+	if (cookies?.jwt) {
+		const refreshToken = cookies.jwt;
+		const foundToken = await User.findOne({ refreshToken }).exec();
+
+		if (!foundToken) {
+			newRefreshTokenArray = [];
+		}
+
+		res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
+	}
+
+	user.refreshToken = [...newRefreshTokenArray, refresh_token];
+	await user.save();
+
+	res.cookie('jwt', refresh_token, {
+		httpOnly: true,
+		secure: true,
+		sameSite: 'none',
+		maxAge: 24 * 60 * 60 * 1000,
+	});
 
 	const expiresAt = Math.floor(Date.now() / 1000 + 5 * 60);
 
-	res
-		.status(201)
-		.send({ access_token, type: 'Bearer', refresh_token, expiresAt });
+	res.status(201).send({ access_token, type: 'Bearer', expiresAt });
 };
 
 const viewUserController = async (

@@ -21,8 +21,6 @@ const newModuleController = async (req: Request, res: Response) => {
 		if (!actionExists) throw new BadRequestError('Such an action not found');
 	}
 
-	console.log(actions);
-
 	const module = Module.build({ name, actions });
 	await module.save();
 

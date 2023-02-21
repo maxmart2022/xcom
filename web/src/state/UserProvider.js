@@ -8,6 +8,7 @@ const UserProvider = ({ children }) => {
 	const { getLoggedinUser } = useAuthService();
 
 	useEffect(() => {
+		console.log(currentUser);
 		const getCurrentUser = async () => {
 			const responseData = await getLoggedinUser();
 			if (

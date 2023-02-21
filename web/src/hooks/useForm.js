@@ -20,10 +20,8 @@ const useForm = (initialValues, validationSchema, doSubmit) => {
 	};
 
 	const handleChange = async (event) => {
-		console.log('Input changed');
 		event.persist();
-		validate();
-		const { name, value, checked } = event.target;
+		const { name, value } = event.target;
 		setValues((prevValues) => {
 			if (Array.isArray(prevValues[name])) {
 				return {
@@ -37,6 +35,7 @@ const useForm = (initialValues, validationSchema, doSubmit) => {
 				};
 			}
 		});
+		validate();
 	};
 
 	const handleCheckboxChange = (event) => {
@@ -64,6 +63,7 @@ const useForm = (initialValues, validationSchema, doSubmit) => {
 				};
 			}
 		});
+		validate();
 	};
 
 	const handleSubmit = async (event) => {

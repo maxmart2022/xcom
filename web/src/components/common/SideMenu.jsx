@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { ChevronRightOutlined } from '@mui/icons-material';
 import navItems from 'menu/navItems';
-import { UserContext } from 'state/UserContext';
+import { UserContext } from 'state/UserProvider';
 
 const SideMenu = () => {
 	const { pathname } = useLocation();

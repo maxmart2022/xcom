@@ -3,7 +3,7 @@ import 'express-async-errors';
 import { json } from 'body-parser';
 import cookieSession from 'cookie-session';
 import { NotFoundError, errorHandler } from './errors';
-import { requireSuperman } from './middlewares';
+import { currentUser, requireSuperman } from './middlewares';
 import { authRouter, actionRouter, tokenRouter, moduleRouter } from './routes';
 
 const app = express();
@@ -26,6 +26,9 @@ app.use(requireSuperman);
 
 app.use(authRouter);
 app.use(tokenRouter);
+
+app.use(currentUser);
+
 app.use(actionRouter);
 app.use(moduleRouter);
 

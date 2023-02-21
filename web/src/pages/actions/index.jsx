@@ -1,22 +1,52 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Grid, useTheme } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import useAxiosPrivate from 'hooks/useAxiosPrivate';
 import Header from 'components/Header';
-import useActionService from 'services/actionService';
 import ActionForm from 'forms/ActionForm';
+import { axiosPrivate } from 'api/axios';
 
 const Actions = () => {
 	const theme = useTheme();
+	const axiosPrivate = useAxiosPrivate();
+	const [loading, setLoading] = useState(false);
+	const [actions, setActions] = useState(null);
+	const [error, setError] = useState(null);
 	const [refreshData, setRefreshData] = useState(false);
-	const { getActions, loading, data } = useActionService();
+
+	const navigate = useNavigate();
+	const location = useLocation();
 
 	useEffect(() => {
-		const getData = async () => {
-			await getActions();
+		let isMounted = true;
+		const controller = new AbortController();
+		const getActions = async () => {
+			try {
+				setLoading(true);
+				const response = await axiosPrivate.get('action/list', {
+					signal: controller.signal,
+				});
+				isMounted && setActions(response.data);
+			} catch (err) {
+				if (err.response && err.response.data && err.response.data.errors) {
+					setError(err.response.data.errors[0].message);
+				} else if (err.response?.status === 401) {
+					navigate('/login', { state: { from: location }, replace: true });
+				} else {
+					setError('Something unexepected !!!');
+				}
+			} finally {
+				setLoading(false);
+			}
 		};
-		getData();
-		// eslint-disable-next-line
-	}, [refreshData]);
+		getActions();
+
+		return () => {
+			isMounted = false;
+			controller.abort();
+		};
+	}, []);
 
 	const handleAddAction = () => {
 		setRefreshData(!refreshData);
@@ -68,9 +98,9 @@ const Actions = () => {
 					<Grid item xs={8} container>
 						<DataGrid
 							autoHeight
-							loading={loading || !data}
+							loading={loading || !actions}
 							getRowId={(row) => row._id}
-							rows={data || []}
+							rows={actions || []}
 							columns={columns}
 							localeText={localeText}
 						/>

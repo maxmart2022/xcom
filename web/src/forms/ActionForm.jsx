@@ -4,7 +4,7 @@ import { TextField, CircularProgress, Alert } from '@mui/material';
 import { SaveAltOutlined } from '@mui/icons-material';
 import useActionService from 'services/actionService';
 import actionSchema from 'validations/actionSchema';
-import useForm from 'hooks/use-form';
+import useForm from 'hooks/useForm';
 
 const ActionForm = ({ onAddAction }) => {
 	const theme = useTheme();

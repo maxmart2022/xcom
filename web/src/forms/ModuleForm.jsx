@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Box, Button, useTheme } from '@mui/material';
 import {
 	TextField,
@@ -12,46 +12,59 @@ import { SaveAltOutlined } from '@mui/icons-material';
 import useActionService from 'services/actionService';
 import useModuleService from 'services/moduleService';
 import moduleSchema from 'validations/moduleSchema';
-import useForm from 'hooks/use-form';
+import useForm from 'hooks/useForm';
 
 const ModuleForm = ({ onAddModule, selectedModule }) => {
 	const theme = useTheme();
-	const [initialValues, setInitialValues] = useState({ name: '', actions: [] });
-
+	const initialValues = { name: '', actions: [] };
 	const {
 		getActions,
 		loading: actionLoading,
 		data: actionData,
 	} = useActionService();
+	const { newModule, updateModule, loading, error } = useModuleService();
 
 	useEffect(() => {
 		const getData = async () => {
 			await getActions();
 		};
 		getData();
-	}, []);
-
-	useEffect(() => {
-		if (selectedModule) {
-			setInitialValues({
-				name: selectedModule.name,
-				actions: selectedModule.actions.map((a) => a._id),
-			});
-		} else {
-			setInitialValues(initialValues);
-		}
-	}, [selectedModule]);
-
-	const { newModule, loading, error } = useModuleService();
+	}, [onAddModule]);
 
 	const doSubmit = async (payload) => {
-		const responseData = await newModule(payload);
+		let responseData = null;
+		if (selectedModule) {
+			responseData = await updateModule(payload);
+		} else {
+			responseData = await newModule(payload);
+		}
 		if (responseData) {
 			onAddModule();
 		}
 	};
-	const { values, handleChange, handleCheckboxChange, handleSubmit, errors } =
-		useForm(initialValues, moduleSchema, doSubmit);
+	const {
+		values,
+		setValues,
+		handleChange,
+		handleCheckboxChange,
+		handleSubmit,
+		errors,
+	} = useForm(initialValues, moduleSchema, doSubmit);
+
+	console.log(selectedModule);
+	console.log(actionData);
+
+	useEffect(() => {
+		if (selectedModule) {
+			setValues({
+				name: selectedModule.name,
+				actions: selectedModule.actions.map((a) => a._id),
+			});
+		} else {
+			setValues(initialValues);
+		}
+	}, [selectedModule]);
+
 	return (
 		<>
 			<form style={{ display: 'contents' }} onSubmit={handleSubmit}>

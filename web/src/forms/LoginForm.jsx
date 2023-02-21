@@ -1,31 +1,42 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Button, useTheme } from '@mui/material';
 import { TextField, CircularProgress, Alert } from '@mui/material';
 import { VpnKeyOutlined } from '@mui/icons-material';
 import loginSchema from 'validations/login';
-import useForm from 'hooks/use-form';
-import useAuthService from 'services/authService';
+import useForm from 'hooks/useForm';
+import useAuth from 'hooks/useAuth';
+import { axiosPrivate } from 'api/axios';
 
 const LoginForm = () => {
 	const theme = useTheme();
-	const navigate = useNavigate();
 	const initialValues = { email: '', password: '' };
+	const { setAuth } = useAuth();
 
-	const { login, loading, error } = useAuthService();
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState(null);
+
+	const navigate = useNavigate();
+	const location = useLocation();
+	const from = location.state?.from?.pathname || '/dashboard';
 
 	const doSubmit = async (payload) => {
-		const responseData = await login(payload);
-		if (responseData) {
-			localStorage.setItem(
-				'accessToken',
-				JSON.stringify({
-					value: responseData.access_token,
-					expiresAt: responseData.expiresAt,
-				})
-			);
-			localStorage.setItem('refreshToken', responseData.refresh_token);
-			navigate('/dashboard');
+		try {
+			setLoading(true);
+			const responseData = await axiosPrivate.post('auth/signin', payload);
+			setAuth({
+				accessToken: responseData?.data?.access_token,
+				expiresAt: responseData?.data?.expiresAt,
+			});
+			navigate(from, { replace: true });
+		} catch (err) {
+			if (err.response && err.response.data && err.response.data.errors) {
+				setError(err.response.data.errors[0].message);
+			} else {
+				setError('Something unexepected !!!');
+			}
+		} finally {
+			setLoading(false);
 		}
 	};
 	const { values, handleChange, handleSubmit, errors } = useForm(

@@ -1,32 +1,32 @@
-import useApi from 'hooks/use-api';
-import authHeader from './authHeader';
+import useApi from 'hooks/useApi';
+import useAuthHeader from './authHeader';
 
 const useAuthService = () => {
-	const API_URL = 'https://maxmart.dev/api/auth';
+	const headers = useAuthHeader();
 
 	const { request, loading, error, data } = useApi();
 
 	const getUsers = async () => {
-		const responseData = await request('get', `${API_URL}/users`);
+		const responseData = await request('get', 'auth/users');
 		return responseData;
 	};
 
 	const login = async (data) => {
-		const responseData = await request('post', `${API_URL}/signin`, data);
+		const responseData = await request('post', 'auth/signin', data);
 		return responseData;
 	};
 
 	const signup = async (data) => {
-		const responseData = await request('post', `${API_URL}/signup`, data);
+		const responseData = await request('post', 'auth/signup', data);
 		return responseData;
 	};
 
-	const getLoggedinUser = async (data) => {
+	const getLoggedinUser = async () => {
 		const responseData = await request(
 			'get',
-			`${API_URL}/currentUser`,
+			'auth/currentUser',
 			null,
-			authHeader()
+			headers
 		);
 		return responseData;
 	};
