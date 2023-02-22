@@ -5,68 +5,67 @@ import { User } from '../models';
 import { UserPayload } from '../types/types';
 
 const refreshTokenController = async (req: Request, res: Response) => {
-	const cookies = req.cookies;
-	if (!cookies?.jwt) return res.sendStatus(401);
-	const refreshToken = cookies.jwt;
-	res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
+	try {
+		// Get the JWT from the cookies
+		const refreshToken = req.cookies.jwt;
+		if (!refreshToken) {
+			throw new NotAuthorizedError();
+		}
 
-	const user = await User.findOne({ refreshToken }).exec();
+		// Check if the JWT is valid and extract the user's email
+		let email;
+		try {
+			const decoded = jwt.verify(
+				refreshToken,
+				process.env.REFRESH_TOKEN!
+			) as UserPayload;
+			email = decoded.email;
+		} catch (err) {
+			throw new AccessForbidden();
+		}
 
-	if (!user) {
-		jwt.verify(
-			refreshToken,
+		// Find the user associated with the refresh token
+		const user = await User.findOne({ email, refreshToken }).exec();
+		if (!user) {
+			throw new NotAuthorizedError();
+		}
+
+		// Generate a new access token and refresh token
+		const accessToken = User.generateAuthToken(user, process.env.JWT_KEY!, 15);
+		const newRefreshToken = User.generateAuthToken(
+			user,
 			process.env.REFRESH_TOKEN!,
-			(err: jwt.VerifyErrors | null, decoded: any) => {
-				if (err) throw new AccessForbidden();
-				const { email } = decoded as UserPayload;
-				User.findOneAndUpdate(
-					{ email },
-					{ $set: { refreshToken: [] } },
-					{ new: true },
-					(err, updatedUser) => {
-						if (err || !updatedUser) throw new NotAuthorizedError();
-					}
-				);
-			}
+			24 * 60 * 60
 		);
 
-		throw new AccessForbidden();
-	}
+		// Update the user's refresh token in the database
+		user.refreshToken.push(newRefreshToken);
+		await user.save();
 
-	const newRefreshTokenArray = user.refreshToken.filter(
-		(rt) => rt !== refreshToken
-	);
+		// Set the new refresh token as a cookie
+		res.cookie('jwt', newRefreshToken, {
+			httpOnly: true,
+			secure: true,
+			sameSite: 'none',
+			maxAge: 24 * 60 * 60 * 1000,
+		});
 
-	// evaluate jwt
-	jwt.verify(
-		refreshToken,
-		process.env.REFRESH_TOKEN!,
-		async (err: jwt.VerifyErrors | null, decoded: any) => {
-			if (err) {
-				user.refreshToken = [...newRefreshTokenArray];
-				await user.save();
-			}
-			if (err || user.email !== decoded.email) return res.sendStatus(403);
-			const access_token = jwt.sign(decoded, process.env.JWT_KEY!, {
-				expiresIn: '300s',
-			});
-			const newRefreshToken = jwt.sign(decoded, process.env.REFRESH_TOKEN!, {
-				expiresIn: '1d',
-			});
-			user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
-			await user.save();
-
-			res.cookie('jwt', newRefreshToken, {
+		// Send the new access token and its expiration time as a response
+		const expiresAt = Math.floor(Date.now() / 1000 + 5 * 60);
+		res.status(201).send({ access_token: accessToken, expiresAt });
+	} catch (err) {
+		if (err instanceof NotAuthorizedError || err instanceof AccessForbidden) {
+			res.clearCookie('jwt', {
 				httpOnly: true,
-				secure: true,
 				sameSite: 'none',
-				maxAge: 24 * 60 * 60 * 1000,
+				secure: true,
 			});
-
-			const expiresAt = Math.floor(Date.now() / 1000 + 5 * 60);
-			res.status(201).send({ access_token, expiresAt });
+			res.status(err.statusCode).send({ errors: err.serializeErrors() });
+		} else {
+			console.error(err);
+			res.status(500).send({ errors: [{ message: 'Something went wrong' }] });
 		}
-	);
+	}
 };
 
 export { refreshTokenController };

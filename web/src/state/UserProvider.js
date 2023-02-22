@@ -1,26 +1,33 @@
 import React, { createContext, useEffect, useState } from 'react';
-import useAuthService from 'services/authService';
+import useAxiosPrivate from 'hooks/useAxiosPrivate';
 
 const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
 	const [currentUser, setCurrentUser] = useState({});
-	const { getLoggedinUser } = useAuthService();
+	const axiosPrivate = useAxiosPrivate();
 
 	useEffect(() => {
-		console.log(currentUser);
+		let isMounted = true;
+		const controller = new AbortController();
 		const getCurrentUser = async () => {
-			const responseData = await getLoggedinUser();
-			if (
-				responseData &&
-				responseData.currentUser &&
-				responseData.currentUser !== 'null'
-			) {
-				setCurrentUser(responseData.currentUser);
+			try {
+				const { data } = await axiosPrivate.get('auth/currentUser', {
+					signal: controller.signal,
+				});
+				if (data && data.currentUser && data.currentUser !== 'null') {
+					setCurrentUser(data.currentUser);
+				}
+			} catch (err) {
+				console.error(err);
 			}
 		};
 		getCurrentUser();
 		// eslint-disable-next-line
+		return () => {
+			isMounted = false;
+			controller.abort();
+		};
 	}, []);
 
 	return (

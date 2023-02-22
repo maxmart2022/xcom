@@ -1,12 +1,20 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Button, useTheme } from '@mui/material';
-import { TextField, CircularProgress, Alert } from '@mui/material';
+import {
+	TextField,
+	FormGroup,
+	FormControlLabel,
+	Checkbox,
+	CircularProgress,
+	Alert,
+} from '@mui/material';
 import { VpnKeyOutlined } from '@mui/icons-material';
 import loginSchema from 'validations/login';
 import useForm from 'hooks/useForm';
 import useAuth from 'hooks/useAuth';
 import { axiosPrivate } from 'api/axios';
+import useToggle from 'hooks/useToggle';
 
 const LoginForm = () => {
 	const theme = useTheme();
@@ -15,6 +23,7 @@ const LoginForm = () => {
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
+	const [check, toggleCheck] = useToggle('persist', false);
 
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -72,6 +81,21 @@ const LoginForm = () => {
 					error={!!errors.password}
 					helperText={errors.password}
 				/>
+				<FormGroup>
+					<FormControlLabel
+						control={
+							<Checkbox
+								onChange={toggleCheck}
+								checked={check}
+								sx={{
+									color: theme.palette.secondary[300],
+								}}
+							/>
+						}
+						label='Trust this device'
+					/>
+				</FormGroup>
+
 				{error && <Alert severity='error'>{JSON.stringify(error)}</Alert>}
 				<Box mt='20px'>
 					<Button

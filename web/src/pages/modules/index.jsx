@@ -1,32 +1,56 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, Stack, useTheme, Button } from '@mui/material';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Box, Grid, useTheme } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { Edit } from '@mui/icons-material';
 import Header from 'components/Header';
-import useModuleService from 'services/moduleService';
-import ModuleForm from 'forms/ModuleForm';
+import useAxiosPrivate from 'hooks/useAxiosPrivate';
 
 const Modules = () => {
 	const theme = useTheme();
+	const axiosPrivate = useAxiosPrivate();
+	const [loading, setLoading] = useState(false);
+	const [modules, setModules] = useState(null);
+	const [error, setError] = useState(null);
 	const [refreshData, setRefreshData] = useState(false);
-	const { getModules, loading, data } = useModuleService();
-	const [selectedModule, setSelectedModule] = useState(null);
+
+	const navigate = useNavigate();
+	const location = useLocation();
 
 	useEffect(() => {
-		const getData = async () => {
-			await getModules();
+		let isMounted = true;
+		const controller = new AbortController();
+		const getModules = async () => {
+			try {
+				setLoading(true);
+				const response = await axiosPrivate.get('module/list', {
+					signal: controller.signal,
+				});
+				isMounted && setModules(response.data);
+			} catch (err) {
+				if (err.response && err.response.data && err.response.data.errors) {
+					setError(err.response.data.errors[0].message);
+				} else if (
+					err.response?.status === 401 ||
+					err.response?.status === 403
+				) {
+					navigate('/login', { state: { from: location }, replace: true });
+				} else {
+					setError('Something unexepected !!!');
+				}
+			} finally {
+				setLoading(false);
+			}
 		};
-		getData();
-		// eslint-disable-next-line
-	}, [refreshData]);
+		getModules();
+
+		return () => {
+			isMounted = false;
+			controller.abort();
+		};
+	}, []);
 
 	const handleAddModule = () => {
 		setRefreshData(!refreshData);
-	};
-
-	const handleEdit = (moduleId) => {
-		const module = data.find((m) => m._id === moduleId);
-		setSelectedModule(module);
 	};
 
 	const columns = [
@@ -41,24 +65,6 @@ const Modules = () => {
 			flex: 1,
 			valueGetter: (params) =>
 				params.row.actions.map((action) => action.name).join(', '),
-		},
-		{
-			field: '',
-			headerName: ' ',
-			flex: 1,
-			renderCell: (params) => (
-				<Stack direction='row' spacing={2}>
-					<Button
-						variant='contained'
-						size='small'
-						color='secondary'
-						startIcon={<Edit />}
-						onClick={() => handleEdit(params.row._id)}
-					>
-						Edit
-					</Button>
-				</Stack>
-			),
 		},
 	];
 
@@ -100,19 +106,14 @@ const Modules = () => {
 					<Grid item xs={8} container>
 						<DataGrid
 							autoHeight
-							loading={loading || !data}
+							loading={loading || !modules}
 							getRowId={(row) => row._id}
-							rows={data || []}
+							rows={modules || []}
 							columns={columns}
 							localeText={localeText}
 						/>
 					</Grid>
-					<Grid item xs={4}>
-						<ModuleForm
-							onAddModule={handleAddModule}
-							selectedModule={selectedModule}
-						/>
-					</Grid>
+					<Grid item xs={4}></Grid>
 				</Grid>
 			</Box>
 		</Box>

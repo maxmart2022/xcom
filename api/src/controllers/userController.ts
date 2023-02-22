@@ -86,8 +86,11 @@ const signinController = async (req: Request, res: Response) => {
 	});
 
 	const expiresAt = Math.floor(Date.now() / 1000 + 5 * 60);
+	const refreshTokenVersion = user.refreshTokenVersion;
 
-	res.status(201).send({ access_token, type: 'Bearer', expiresAt });
+	res
+		.status(201)
+		.send({ access_token, type: 'Bearer', expiresAt, refreshTokenVersion });
 };
 
 const viewUserController = async (

@@ -5,7 +5,6 @@ import { DataGrid } from '@mui/x-data-grid';
 import useAxiosPrivate from 'hooks/useAxiosPrivate';
 import Header from 'components/Header';
 import ActionForm from 'forms/ActionForm';
-import { axiosPrivate } from 'api/axios';
 
 const Actions = () => {
 	const theme = useTheme();
@@ -31,7 +30,10 @@ const Actions = () => {
 			} catch (err) {
 				if (err.response && err.response.data && err.response.data.errors) {
 					setError(err.response.data.errors[0].message);
-				} else if (err.response?.status === 401) {
+				} else if (
+					err.response?.status === 401 ||
+					err.response?.status === 403
+				) {
 					navigate('/login', { state: { from: location }, replace: true });
 				} else {
 					setError('Something unexepected !!!');

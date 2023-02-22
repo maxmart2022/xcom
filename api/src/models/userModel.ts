@@ -29,6 +29,7 @@ interface UserDoc extends Document {
 	isActive: boolean;
 	permissions: [{ module: ObjectId; actions: [ObjectId] }];
 	refreshToken: string[];
+	refreshTokenVersion: number;
 }
 
 const userSchema = new mongoose.Schema(
@@ -58,6 +59,10 @@ const userSchema = new mongoose.Schema(
 			},
 		],
 		refreshToken: [String],
+		refreshTokenVersion: {
+			type: Number,
+			default: 0,
+		},
 	},
 	{
 		toJSON: {
