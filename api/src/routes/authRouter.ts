@@ -1,8 +1,10 @@
 import express from 'express';
 import {
+	deleteUserController,
 	listUsersController,
 	signinController,
 	signupController,
+	suspendOrActivateUserController,
 	updateUserController,
 	viewUserController,
 } from '../controllers';
@@ -36,6 +38,12 @@ router.put(
 	validateRequest,
 	updateUserController
 );
+router.put(
+	'/api/auth/suspend/:id',
+	currentUser,
+	suspendOrActivateUserController
+);
+router.delete('/api/auth/delete/:id', currentUser, deleteUserController);
 router.get('/api/auth/currentUser', currentUser, (req, res) => {
 	res.status(200).send({ currentUser: req.currentUser || null });
 });

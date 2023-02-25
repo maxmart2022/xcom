@@ -34,9 +34,7 @@ export const currentUser = (
 		throw new NotAuthorizedError();
 	}
 
-	let secret = req.header('x-refresh-token')
-		? process.env.REFRESH_TOKEN!
-		: process.env.JWT_KEY!;
+	let secret = process.env.JWT_KEY!;
 
 	try {
 		const payload = jwt.verify(token, secret) as UserPayload;
@@ -45,6 +43,17 @@ export const currentUser = (
 		throw new NotAuthorizedError();
 	}
 
+	next();
+};
+
+export const requireAuth = (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	if (!req.currentUser || !req.currentUser.isActive) {
+		throw new NotAuthorizedError();
+	}
 	next();
 };
 

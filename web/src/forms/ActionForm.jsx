@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Box, Button, useTheme, Stack } from '@mui/material';
 import { TextField, CircularProgress, Alert } from '@mui/material';
-import { SaveAltOutlined } from '@mui/icons-material';
+import { SaveOutlined } from '@mui/icons-material';
 import actionSchema from 'validations/actionSchema';
 import useForm from 'hooks/useForm';
 import useApi from 'hooks/useApi';
@@ -84,12 +84,9 @@ const ActionForm = ({ onAddAction, actionId, setActionId }) => {
 								fontSize: '14px',
 								fontWeight: 'bold',
 								padding: '10px 20px',
-								':hover': {
-									backgroundColor: 'none',
-								},
 							}}
 						>
-							<SaveAltOutlined sx={{ mr: '10px' }} />
+							<SaveOutlined sx={{ mr: '10px' }} />
 							{actionId ? 'Update' : 'Save'}
 						</Button>
 						{actionId && (

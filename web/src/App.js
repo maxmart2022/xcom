@@ -4,14 +4,16 @@ import { useContext, useMemo } from 'react';
 import { ThemeContext } from 'state';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { themeSettings } from 'theme';
+import { AuthProvider } from 'state/AuthProvider';
+import PersistLogin from 'components/PersistLogin';
+import RequireAuth from 'components/RequireAuth';
 import Login from 'pages/authentication';
 import Dashboard from 'pages/dashboard';
 import Layout from 'pages/layout';
 import Actions from 'pages/actions';
 import Modules from 'pages/modules';
-import RequireAuth from 'components/RequireAuth';
-import { AuthProvider } from 'state/AuthProvider';
-import PersistLogin from 'components/PersistLogin';
+import Users from 'pages/users';
+import NewUser from 'pages/users/new';
 
 function App() {
 	const { state } = useContext(ThemeContext);
@@ -30,6 +32,8 @@ function App() {
 										<Route path='/dashboard' element={<Dashboard />} />
 										<Route path='/actions' element={<Actions />} />
 										<Route path='/modules' element={<Modules />} />
+										<Route path='/users/:id' element={<NewUser />} />
+										<Route path='/users' element={<Users />} />
 									</Route>
 								</Route>
 							</Route>

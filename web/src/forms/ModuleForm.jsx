@@ -9,7 +9,7 @@ import {
 	Alert,
 	FormHelperText,
 } from '@mui/material';
-import { SaveAltOutlined } from '@mui/icons-material';
+import { SaveOutlined } from '@mui/icons-material';
 import moduleSchema from 'validations/moduleSchema';
 import useForm from 'hooks/useForm';
 import useApi from 'hooks/useApi';
@@ -137,11 +137,11 @@ const ModuleForm = ({ onAddModule, moduleId, setModuleId }) => {
 								fontWeight: 'bold',
 								padding: '10px 20px',
 								':hover': {
-									backgroundColor: 'none',
+									backgroundColor: 'transparent',
 								},
 							}}
 						>
-							<SaveAltOutlined sx={{ mr: '10px' }} />
+							<SaveOutlined sx={{ mr: '10px' }} />
 							{moduleId ? 'Update' : 'Save'}
 						</Button>
 						{moduleId && (

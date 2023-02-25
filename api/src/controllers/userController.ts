@@ -1,14 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import { isValidObjectId } from 'mongoose';
-import { User } from '../models/userModel';
-import { Module } from '../models/moduleModel';
-import { Action } from '../models/actionModel';
+import { Action, Module, User } from '../models';
 import { BadRequestError } from '../errors';
 import { Password } from '../services/password';
 import { roles } from '../constants/roles';
 
 const listUsersController = async (req: Request, res: Response) => {
-	const users = await User.find({})
+	const users = await User.find({ isSuperUser: false })
 		.populate({
 			path: 'permissions.module',
 			model: Module,
@@ -46,6 +44,8 @@ const signinController = async (req: Request, res: Response) => {
 
 	const user = await User.findOne({ email });
 	if (!user) throw new BadRequestError('Invalid Credentials');
+
+	if (!user.isActive) throw new BadRequestError('Account not active');
 
 	const isPasswordMatch = await Password.comparePasswords(
 		password,
@@ -123,7 +123,7 @@ const updateUserController = async (req: Request, res: Response) => {
 	const emailExists = await User.findOne({ email, _id: { $ne: userId } });
 	if (emailExists) throw new BadRequestError('Email exists');
 	let { role } = req.body;
-	if (typeof role === 'undefined') role = roles.USER;
+	if (typeof role === 'undefined') role = roles.GUEST;
 
 	user.set({ email, role });
 	await user.save();
@@ -131,10 +131,38 @@ const updateUserController = async (req: Request, res: Response) => {
 	res.status(200).send(user);
 };
 
+const suspendOrActivateUserController = async (req: Request, res: Response) => {
+	const userId = req.params.id;
+	if (!isValidObjectId(userId)) throw new BadRequestError('Invalid user');
+
+	const user = await User.findById(userId);
+	if (!user) throw new BadRequestError('Invalid user');
+
+	await User.findByIdAndUpdate(
+		userId,
+		{ isActive: req.body.isActive },
+		{ new: true }
+	);
+
+	res.status(200).send(user);
+};
+
+const deleteUserController = async (req: Request, res: Response) => {
+	const userId = req.params.id;
+	if (!isValidObjectId(userId)) throw new BadRequestError('Invalid User');
+
+	const user = await User.findById(userId);
+	if (!user) throw new BadRequestError('Invalid User');
+
+	await User.findByIdAndDelete(userId);
+	res.status(200).send(user);
+};
 export {
 	listUsersController,
 	signupController,
 	signinController,
 	viewUserController,
 	updateUserController,
+	suspendOrActivateUserController,
+	deleteUserController,
 };

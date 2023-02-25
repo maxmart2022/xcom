@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, Button, useTheme, Alert, Stack } from '@mui/material';
+import { Box, Grid, Button, Alert, Stack } from '@mui/material';
 import { Edit } from '@mui/icons-material';
 import { DataGrid } from '@mui/x-data-grid';
 import Header from 'components/Header';
@@ -7,7 +7,6 @@ import ActionForm from 'forms/ActionForm';
 import useApi from 'hooks/useApi';
 
 const Actions = () => {
-	const theme = useTheme();
 	const [actions, setActions] = useState(null);
 	const [refreshData, setRefreshData] = useState(false);
 	const [actionId, setActionId] = useState(null);
@@ -45,7 +44,7 @@ const Actions = () => {
 					<Button
 						variant='contained'
 						size='small'
-						color='secondary'
+						color='info'
 						startIcon={<Edit />}
 						onClick={() => setActionId(params.row._id)}
 					>
@@ -63,33 +62,7 @@ const Actions = () => {
 	return (
 		<Box m='1.5rem 2.5rem'>
 			<Header title='Actions' subtitle='List of Actions' />
-			<Box
-				mt='40px'
-				sx={{
-					'& .MuiDataGrid-root': {
-						border: 'none',
-					},
-					'& .MuiDataGrid-cell': {
-						borderBottom: 'none',
-					},
-					'& .MuiDataGrid-columnHeaders': {
-						backgroundColor: theme.palette.background.alt,
-						color: theme.palette.secondary[100],
-						borderBottom: 'none',
-					},
-					'& .MuiDataGrid-virtualScroller': {
-						backgroundColor: theme.palette.primary.light,
-					},
-					'& .MuiDataGrid-footerContainer': {
-						backgroundColor: theme.palette.background.alt,
-						color: theme.palette.secondary[100],
-						borderTop: 'none',
-					},
-					'& .MuiDataGrid-toolbarContainer .MuiButton-text': {
-						color: `${theme.palette.secondary[200]} !important`,
-					},
-				}}
-			>
+			<Box mt='40px'>
 				{error && <Alert severity='error'>{JSON.stringify(error)}</Alert>}
 				<Grid container spacing={2}>
 					<Grid item xs={6} container>

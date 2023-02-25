@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, useTheme, Alert, Stack, Button } from '@mui/material';
+import { Box, Grid, Alert, Stack, Button, Chip } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { DataGrid } from '@mui/x-data-grid';
 import Header from 'components/Header';
@@ -7,7 +7,6 @@ import useApi from 'hooks/useApi';
 import ModuleForm from 'forms/ModuleForm';
 
 const Modules = () => {
-	const theme = useTheme();
 	const [modules, setModules] = useState(null);
 	const [refreshData, setRefreshData] = useState(false);
 	const [moduleId, setModuleId] = useState(null);
@@ -46,14 +45,14 @@ const Modules = () => {
 		{
 			field: 'name',
 			headerName: 'Name',
-			flex: 1,
+			flex: 0.5,
 		},
 		{
 			field: 'actions',
 			headerName: 'Rights',
 			flex: 1,
-			valueGetter: (params) =>
-				params.row.actions.map((action) => action.name).join(', '),
+			renderCell: (params) =>
+				params.row.actions.map((action) => <Chip label={action.name} />),
 		},
 		{
 			field: '',
@@ -64,7 +63,7 @@ const Modules = () => {
 					<Button
 						variant='contained'
 						size='small'
-						color='secondary'
+						color='info'
 						startIcon={<Edit />}
 						onClick={() => setModuleId(params.row._id)}
 					>
@@ -73,7 +72,7 @@ const Modules = () => {
 					<Button
 						variant='contained'
 						size='small'
-						color='secondary'
+						color='error'
 						startIcon={<Delete />}
 						onClick={() => handleDelete(params.row._id)}
 					>
@@ -91,33 +90,7 @@ const Modules = () => {
 	return (
 		<Box m='1.5rem 2.5rem'>
 			<Header title='Modules' subtitle='List of Modules' />
-			<Box
-				mt='40px'
-				sx={{
-					'& .MuiDataGrid-root': {
-						border: 'none',
-					},
-					'& .MuiDataGrid-cell': {
-						borderBottom: 'none',
-					},
-					'& .MuiDataGrid-columnHeaders': {
-						backgroundColor: theme.palette.background.alt,
-						color: theme.palette.secondary[100],
-						borderBottom: 'none',
-					},
-					'& .MuiDataGrid-virtualScroller': {
-						backgroundColor: theme.palette.primary.light,
-					},
-					'& .MuiDataGrid-footerContainer': {
-						backgroundColor: theme.palette.background.alt,
-						color: theme.palette.secondary[100],
-						borderTop: 'none',
-					},
-					'& .MuiDataGrid-toolbarContainer .MuiButton-text': {
-						color: `${theme.palette.secondary[200]} !important`,
-					},
-				}}
-			>
+			<Box mt='40px'>
 				{error && <Alert severity='error'>{JSON.stringify(error)}</Alert>}
 				<Grid container spacing={2}>
 					<Grid item xs={8} container style={{ height: '100%' }}>
