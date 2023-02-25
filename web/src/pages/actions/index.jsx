@@ -1,54 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Box, Grid, useTheme } from '@mui/material';
+import { Box, Grid, Button, useTheme, Alert, Stack } from '@mui/material';
+import { Edit } from '@mui/icons-material';
 import { DataGrid } from '@mui/x-data-grid';
-import useAxiosPrivate from 'hooks/useAxiosPrivate';
 import Header from 'components/Header';
 import ActionForm from 'forms/ActionForm';
+import useApi from 'hooks/useApi';
 
 const Actions = () => {
 	const theme = useTheme();
-	const axiosPrivate = useAxiosPrivate();
-	const [loading, setLoading] = useState(false);
 	const [actions, setActions] = useState(null);
-	const [error, setError] = useState(null);
 	const [refreshData, setRefreshData] = useState(false);
+	const [actionId, setActionId] = useState(null);
 
-	const navigate = useNavigate();
-	const location = useLocation();
+	const { loading, error, fetchData } = useApi();
 
 	useEffect(() => {
-		let isMounted = true;
-		const controller = new AbortController();
 		const getActions = async () => {
 			try {
-				setLoading(true);
-				const response = await axiosPrivate.get('action/list', {
-					signal: controller.signal,
-				});
-				isMounted && setActions(response.data);
+				const response = await fetchData('action/list');
+				setActions(response);
 			} catch (err) {
-				if (err.response && err.response.data && err.response.data.errors) {
-					setError(err.response.data.errors[0].message);
-				} else if (
-					err.response?.status === 401 ||
-					err.response?.status === 403
-				) {
-					navigate('/login', { state: { from: location }, replace: true });
-				} else {
-					setError('Something unexepected !!!');
-				}
-			} finally {
-				setLoading(false);
+				console.error(err);
 			}
 		};
 		getActions();
-
-		return () => {
-			isMounted = false;
-			controller.abort();
-		};
-	}, []);
+	}, [refreshData]);
 
 	const handleAddAction = () => {
 		setRefreshData(!refreshData);
@@ -59,6 +35,24 @@ const Actions = () => {
 			field: 'name',
 			headerName: 'Name',
 			flex: 1,
+		},
+		{
+			field: '',
+			headerName: ' ',
+			flex: 1,
+			renderCell: (params) => (
+				<Stack direction='row' spacing={2}>
+					<Button
+						variant='contained'
+						size='small'
+						color='secondary'
+						startIcon={<Edit />}
+						onClick={() => setActionId(params.row._id)}
+					>
+						Edit
+					</Button>
+				</Stack>
+			),
 		},
 	];
 
@@ -96,8 +90,9 @@ const Actions = () => {
 					},
 				}}
 			>
+				{error && <Alert severity='error'>{JSON.stringify(error)}</Alert>}
 				<Grid container spacing={2}>
-					<Grid item xs={8} container>
+					<Grid item xs={6} container>
 						<DataGrid
 							autoHeight
 							loading={loading || !actions}
@@ -107,8 +102,12 @@ const Actions = () => {
 							localeText={localeText}
 						/>
 					</Grid>
-					<Grid item xs={4}>
-						<ActionForm onAddAction={handleAddAction} />
+					<Grid item xs={6}>
+						<ActionForm
+							onAddAction={handleAddAction}
+							actionId={actionId}
+							setActionId={setActionId}
+						/>
 					</Grid>
 				</Grid>
 			</Box>

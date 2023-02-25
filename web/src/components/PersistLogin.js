@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { CircularProgress } from '@mui/material';
+import { Backdrop, CircularProgress } from '@mui/material';
 import useRefreshToken from 'hooks/useRefreshToken';
 import useAuth from 'hooks/useAuth';
 import useLocalStorage from 'hooks/useLocalStorage';
@@ -15,7 +15,6 @@ const PersistLogin = () => {
 		let isMounted = true;
 
 		const verifyRefreshToken = async () => {
-			console.log('Refresh in persist');
 			try {
 				await refresh();
 			} catch (err) {
@@ -33,7 +32,20 @@ const PersistLogin = () => {
 	}, [auth?.accessToken, persist]);
 
 	return (
-		<>{!persist ? <Outlet /> : isLoading ? <CircularProgress /> : <Outlet />}</>
+		<>
+			{!persist ? (
+				<Outlet />
+			) : isLoading ? (
+				<Backdrop
+					sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+					open={true}
+				>
+					<CircularProgress color='inherit' />
+				</Backdrop>
+			) : (
+				<Outlet />
+			)}
+		</>
 	);
 };
 

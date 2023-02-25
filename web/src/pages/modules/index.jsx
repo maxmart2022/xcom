@@ -1,56 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Box, Grid, useTheme } from '@mui/material';
+import { Box, Grid, useTheme, Alert, Stack, Button } from '@mui/material';
+import { Edit, Delete } from '@mui/icons-material';
 import { DataGrid } from '@mui/x-data-grid';
 import Header from 'components/Header';
-import useAxiosPrivate from 'hooks/useAxiosPrivate';
+import useApi from 'hooks/useApi';
+import ModuleForm from 'forms/ModuleForm';
 
 const Modules = () => {
 	const theme = useTheme();
-	const axiosPrivate = useAxiosPrivate();
-	const [loading, setLoading] = useState(false);
 	const [modules, setModules] = useState(null);
-	const [error, setError] = useState(null);
 	const [refreshData, setRefreshData] = useState(false);
+	const [moduleId, setModuleId] = useState(null);
 
-	const navigate = useNavigate();
-	const location = useLocation();
+	const { loading, error, fetchData, deleteData } = useApi();
 
 	useEffect(() => {
 		let isMounted = true;
-		const controller = new AbortController();
 		const getModules = async () => {
 			try {
-				setLoading(true);
-				const response = await axiosPrivate.get('module/list', {
-					signal: controller.signal,
-				});
-				isMounted && setModules(response.data);
+				const response = await fetchData('module/list');
+				isMounted && setModules(response);
 			} catch (err) {
-				if (err.response && err.response.data && err.response.data.errors) {
-					setError(err.response.data.errors[0].message);
-				} else if (
-					err.response?.status === 401 ||
-					err.response?.status === 403
-				) {
-					navigate('/login', { state: { from: location }, replace: true });
-				} else {
-					setError('Something unexepected !!!');
-				}
-			} finally {
-				setLoading(false);
+				console.error(err);
 			}
 		};
 		getModules();
 
-		return () => {
-			isMounted = false;
-			controller.abort();
-		};
-	}, []);
+		return () => (isMounted = false);
+	}, [refreshData]);
 
 	const handleAddModule = () => {
 		setRefreshData(!refreshData);
+	};
+
+	const handleDelete = async (moduleId) => {
+		try {
+			await deleteData(`module/delete/${moduleId}`, {});
+			setRefreshData(!refreshData);
+		} catch (err) {
+			console.error(err);
+		}
 	};
 
 	const columns = [
@@ -65,6 +54,33 @@ const Modules = () => {
 			flex: 1,
 			valueGetter: (params) =>
 				params.row.actions.map((action) => action.name).join(', '),
+		},
+		{
+			field: '',
+			headerName: ' ',
+			flex: 1,
+			renderCell: (params) => (
+				<Stack direction='row' spacing={2}>
+					<Button
+						variant='contained'
+						size='small'
+						color='secondary'
+						startIcon={<Edit />}
+						onClick={() => setModuleId(params.row._id)}
+					>
+						Edit
+					</Button>
+					<Button
+						variant='contained'
+						size='small'
+						color='secondary'
+						startIcon={<Delete />}
+						onClick={() => handleDelete(params.row._id)}
+					>
+						Delete
+					</Button>
+				</Stack>
+			),
 		},
 	];
 
@@ -102,8 +118,9 @@ const Modules = () => {
 					},
 				}}
 			>
+				{error && <Alert severity='error'>{JSON.stringify(error)}</Alert>}
 				<Grid container spacing={2}>
-					<Grid item xs={8} container>
+					<Grid item xs={8} container style={{ height: '100%' }}>
 						<DataGrid
 							autoHeight
 							loading={loading || !modules}
@@ -113,7 +130,13 @@ const Modules = () => {
 							localeText={localeText}
 						/>
 					</Grid>
-					<Grid item xs={4}></Grid>
+					<Grid item xs={4}>
+						<ModuleForm
+							onAddModule={handleAddModule}
+							moduleId={moduleId}
+							setModuleId={setModuleId}
+						/>
+					</Grid>
 				</Grid>
 			</Box>
 		</Box>

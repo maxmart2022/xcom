@@ -15,7 +15,12 @@ const UserProvider = ({ children }) => {
 				const { data } = await axiosPrivate.get('auth/currentUser', {
 					signal: controller.signal,
 				});
-				if (data && data.currentUser && data.currentUser !== 'null') {
+				if (
+					isMounted &&
+					data &&
+					data.currentUser &&
+					data.currentUser !== 'null'
+				) {
 					setCurrentUser(data.currentUser);
 				}
 			} catch (err) {

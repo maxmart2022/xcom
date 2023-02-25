@@ -71,7 +71,6 @@ const useForm = (initialValues, validationSchema, doSubmit) => {
 		if (await validate()) {
 			doSubmit(values);
 		}
-		setValues(initialValues);
 	};
 
 	return {

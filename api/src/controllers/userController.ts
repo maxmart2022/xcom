@@ -53,7 +53,11 @@ const signinController = async (req: Request, res: Response) => {
 	);
 	if (!isPasswordMatch) throw new BadRequestError('Invalid Credentials');
 
-	const access_token = User.generateAuthToken(user, process.env.JWT_KEY!, 15);
+	const access_token = User.generateAuthToken(
+		user,
+		process.env.JWT_KEY!,
+		15 * 60
+	);
 
 	const refresh_token = User.generateAuthToken(
 		user,
@@ -85,7 +89,7 @@ const signinController = async (req: Request, res: Response) => {
 		maxAge: 24 * 60 * 60 * 1000,
 	});
 
-	const expiresAt = Math.floor(Date.now() / 1000 + 5 * 60);
+	const expiresAt = Math.floor(Date.now() / 1000 + 15 * 60);
 	const refreshTokenVersion = user.refreshTokenVersion;
 
 	res
@@ -115,6 +119,9 @@ const updateUserController = async (req: Request, res: Response) => {
 	if (!user) throw new BadRequestError('Invalid user');
 
 	const { email } = req.body;
+	// email unique validation
+	const emailExists = await User.findOne({ email, _id: { $ne: userId } });
+	if (emailExists) throw new BadRequestError('Email exists');
 	let { role } = req.body;
 	if (typeof role === 'undefined') role = roles.USER;
 

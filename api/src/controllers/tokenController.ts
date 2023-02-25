@@ -31,7 +31,11 @@ const refreshTokenController = async (req: Request, res: Response) => {
 		}
 
 		// Generate a new access token and refresh token
-		const accessToken = User.generateAuthToken(user, process.env.JWT_KEY!, 15);
+		const accessToken = User.generateAuthToken(
+			user,
+			process.env.JWT_KEY!,
+			15 * 60
+		);
 		const newRefreshToken = User.generateAuthToken(
 			user,
 			process.env.REFRESH_TOKEN!,
@@ -51,7 +55,7 @@ const refreshTokenController = async (req: Request, res: Response) => {
 		});
 
 		// Send the new access token and its expiration time as a response
-		const expiresAt = Math.floor(Date.now() / 1000 + 5 * 60);
+		const expiresAt = Math.floor(Date.now() / 1000 + 15 * 60);
 		res.status(201).send({ access_token: accessToken, expiresAt });
 	} catch (err) {
 		if (err instanceof NotAuthorizedError || err instanceof AccessForbidden) {

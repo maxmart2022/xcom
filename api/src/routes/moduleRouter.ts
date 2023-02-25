@@ -20,7 +20,13 @@ router.post(
 	newModuleController
 );
 router.get('/api/module/view/:id', isSuperman, viewModuleController);
-router.put('/api/module/udate/:id', isSuperman, updateModuleController);
+router.put(
+	'/api/module/update/:id',
+	isSuperman,
+	moduleValidator,
+	validateRequest,
+	updateModuleController
+);
 router.delete('/api/module/delete/:id', isSuperman, deleteModuleController);
 
 export { router as moduleRouter };

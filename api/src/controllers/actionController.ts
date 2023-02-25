@@ -39,6 +39,8 @@ const updateActionController = async (req: Request, res: Response) => {
 	if (!action) throw new BadRequestError('Action not found');
 
 	const { name } = req.body;
+	const nameExists = await Action.findOne({ name, _id: { $ne: actionId } });
+	if (nameExists) throw new BadRequestError('Action exists');
 	action.set({ name });
 	await action.save();
 
