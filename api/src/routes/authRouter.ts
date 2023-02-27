@@ -2,6 +2,7 @@ import express from 'express';
 import {
 	deleteUserController,
 	listUsersController,
+	logoutController,
 	signinController,
 	signupController,
 	suspendOrActivateUserController,
@@ -47,5 +48,6 @@ router.delete('/api/auth/delete/:id', currentUser, deleteUserController);
 router.get('/api/auth/currentUser', currentUser, (req, res) => {
 	res.status(200).send({ currentUser: req.currentUser || null });
 });
+router.post('/api/auth/signout', logoutController);
 
 export { router as authRouter };

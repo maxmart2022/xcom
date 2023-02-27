@@ -16,7 +16,7 @@ const UserForm = () => {
 	const navigate = useNavigate();
 	const { id: userId } = useParams();
 
-	const { loading, error, fetchData, postData, putData, setError } = useApi();
+	const { loading, error, fetchData, postData, putData } = useApi();
 
 	const doSubmit = async (payload) => {
 		let responseData;

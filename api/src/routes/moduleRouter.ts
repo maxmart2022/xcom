@@ -11,7 +11,7 @@ import { moduleValidator } from '../validators/moduleValidator';
 
 const router = express.Router();
 
-router.get('/api/module/list', isSuperman, listModulesController);
+router.get('/api/module/list', listModulesController);
 router.post(
 	'/api/module/new',
 	isSuperman,

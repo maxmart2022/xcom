@@ -6,6 +6,7 @@ import {
 	PersonAddOutlined,
 	PersonOff,
 	VerifiedUser,
+	Key,
 } from '@mui/icons-material';
 import { DataGrid } from '@mui/x-data-grid';
 import Header from 'components/Header';
@@ -34,6 +35,10 @@ const Users = () => {
 		navigate(`${userId}`);
 	};
 
+	const handlePermit = (userId) => {
+		navigate(`permit/${userId}`);
+	};
+
 	const handleActivation = async (userId, userActive) => {
 		try {
 			await putData(`auth/suspend/${userId}`, { isActive: !userActive });
@@ -58,7 +63,7 @@ const Users = () => {
 		{
 			field: 'email',
 			headerName: 'Email',
-			flex: 1,
+			flex: 0.5,
 		},
 		{
 			field: 'role',
@@ -82,6 +87,15 @@ const Users = () => {
 			flex: 1,
 			renderCell: (params) => (
 				<Stack direction='row' spacing={2}>
+					<Button
+						variant='contained'
+						size='small'
+						color='info'
+						startIcon={<Key />}
+						onClick={() => handlePermit(params.row._id)}
+					>
+						Authorise
+					</Button>
 					<Button
 						variant='contained'
 						size='small'

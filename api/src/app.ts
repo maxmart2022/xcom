@@ -5,7 +5,13 @@ import cookieSession from 'cookie-session';
 import cookieParser from 'cookie-parser';
 import { NotFoundError, errorHandler } from './errors';
 import { currentUser, requireSuperman } from './middlewares';
-import { authRouter, actionRouter, tokenRouter, moduleRouter } from './routes';
+import {
+	authRouter,
+	actionRouter,
+	tokenRouter,
+	moduleRouter,
+	authorisationRouter,
+} from './routes';
 
 const app = express();
 app.set('trust proxy', true);
@@ -16,12 +22,6 @@ app.use(
 		secure: true,
 	})
 );
-
-app.use(function (req, res, next) {
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Headers', 'Content-Type');
-	next();
-});
 
 app.use(cookieParser());
 
@@ -34,6 +34,7 @@ app.use(currentUser);
 
 app.use(actionRouter);
 app.use(moduleRouter);
+app.use(authorisationRouter);
 
 app.all('*', (req, res) => {
 	throw new NotFoundError();

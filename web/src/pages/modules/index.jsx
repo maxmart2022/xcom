@@ -51,8 +51,13 @@ const Modules = () => {
 			field: 'actions',
 			headerName: 'Rights',
 			flex: 1,
-			renderCell: (params) =>
-				params.row.actions.map((action) => <Chip label={action.name} />),
+			renderCell: (params) => (
+				<div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
+					{params.row.actions.map((action, index) => (
+						<Chip label={action.name} key={index} />
+					))}
+				</div>
+			),
 		},
 		{
 			field: '',
@@ -101,6 +106,14 @@ const Modules = () => {
 							rows={modules || []}
 							columns={columns}
 							localeText={localeText}
+							getRowHeight={(params) => {
+								const numLines = params.row?.actions
+									? params.row.actions.length
+									: 1;
+								// add some padding for each line of text
+								const rowHeight = 40 + numLines * 24;
+								return rowHeight;
+							}}
 						/>
 					</Grid>
 					<Grid item xs={4}>

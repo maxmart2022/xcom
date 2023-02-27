@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { NotAuthorizedError } from '../errors';
-import { findSuperman } from '../models/userModel';
+import { findSuperman } from '../models';
 
 interface UserPayload {
 	email: string;
@@ -72,7 +72,7 @@ export const requireSuperman = async (
 	res: Response,
 	next: NextFunction
 ) => {
-	const superman = findSuperman();
+	const superman = await findSuperman();
 	if (!superman) {
 		console.log('No Superman');
 		throw new NotAuthorizedError();

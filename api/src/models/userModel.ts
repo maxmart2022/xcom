@@ -14,6 +14,7 @@ interface TokenAttrs {
 	isSuperUser: boolean;
 	isActive: boolean;
 	role: string;
+	permissions: [{ module: ObjectId; actions: [ObjectId] }];
 }
 
 interface UserModel extends Model<UserDoc> {
@@ -59,10 +60,6 @@ const userSchema = new mongoose.Schema(
 			},
 		],
 		refreshToken: [String],
-		refreshTokenVersion: {
-			type: Number,
-			default: 0,
-		},
 	},
 	{
 		toJSON: {
@@ -94,6 +91,7 @@ userSchema.statics.generateAuthToken = (user: TokenAttrs, secret, expiry) => {
 			isSuperUser: user.isSuperUser,
 			isActive: user.isActive,
 			role: user.role,
+			scope: user.permissions,
 			exp: Math.floor(Date.now() / 1000 + expiry),
 		},
 		secret

@@ -73,6 +73,7 @@ const Actions = () => {
 							rows={actions || []}
 							columns={columns}
 							localeText={localeText}
+							disableSelectionOnClick
 						/>
 					</Grid>
 					<Grid item xs={6}>

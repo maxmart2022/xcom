@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { ThemeContext } from 'state';
+import { ThemeContext } from 'context';
 import { LightModeOutlined, DarkModeOutlined } from '@mui/icons-material';
 import { IconButton, useTheme } from '@mui/material';
 

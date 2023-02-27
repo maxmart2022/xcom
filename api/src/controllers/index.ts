@@ -3,3 +3,4 @@ export * from './moduleController';
 export * from './tokenController';
 export * from './userController';
 export * from './categoryController';
+export * from './authorisationController';

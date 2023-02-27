@@ -11,23 +11,41 @@ import {
 } from '@mui/material';
 import { ChevronRightOutlined } from '@mui/icons-material';
 import navItems from 'menu/navItems';
-import { UserContext } from 'state/UserProvider';
+import { UserContext } from 'context/UserProvider';
+import { ModuleContext } from 'context/ModuleProvider';
 
 const SideMenu = () => {
 	const { pathname } = useLocation();
 	const [active, setActive] = useState('');
 	const navigate = useNavigate();
 	const theme = useTheme();
-	const user = useContext(UserContext);
+	const currentUser = useContext(UserContext);
+	const modules = useContext(ModuleContext);
 
 	useEffect(() => {
 		setActive(pathname.substring(1));
 	}, [pathname]);
 
-	const filteredNavItems = user.currentUser.isSuperUser ? navItems : [];
+	console.log(currentUser);
+
+	// compare Scope and modules and return the modules list
+	const filteredModules = modules.filter((module) => {
+		return currentUser?.scope?.some((perm) => {
+			return perm.module === module._id;
+		});
+	});
+
+	// Compare the returned modules list name with navitems to verify
+	const filteredNavItems = navItems.filter((navItem) => {
+		return filteredModules.some((scopedMenu) => {
+			return scopedMenu.name === navItem.text || !navItem.toVerify;
+		});
+	});
+
+	const menuOptions = currentUser?.isSuperUser ? navItems : filteredNavItems;
 	return (
 		<List>
-			{filteredNavItems.map(({ text, icon }) => {
+			{menuOptions.map(({ text, icon }) => {
 				if (!icon) {
 					return (
 						<Typography key={text} sx={{ m: '2.25rem 0 1rem 3rem' }}>
