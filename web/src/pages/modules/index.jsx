@@ -95,7 +95,7 @@ const Modules = () => {
 	return (
 		<Box m='1.5rem 2.5rem'>
 			<Header title='Modules' subtitle='List of Modules' />
-			<Box mt='40px'>
+			<Box>
 				{error && <Alert severity='error'>{JSON.stringify(error)}</Alert>}
 				<Grid container spacing={2}>
 					<Grid item xs={8} container style={{ height: '100%' }}>

@@ -14,22 +14,20 @@ import navItems from 'menu/navItems';
 import { UserContext } from 'context/UserProvider';
 import { ModuleContext } from 'context/ModuleProvider';
 
-const SideMenu = () => {
+const SideMenu = ({ currentUser, modules }) => {
 	const { pathname } = useLocation();
 	const [active, setActive] = useState('');
 	const navigate = useNavigate();
 	const theme = useTheme();
-	const currentUser = useContext(UserContext);
-	const modules = useContext(ModuleContext);
+	// const currentUser = useContext(UserContext);
+	// const modules = useContext(ModuleContext);
 
 	useEffect(() => {
 		setActive(pathname.substring(1));
 	}, [pathname]);
 
-	console.log(currentUser);
-
 	// compare Scope and modules and return the modules list
-	const filteredModules = modules.filter((module) => {
+	const filteredModules = modules?.filter((module) => {
 		return currentUser?.scope?.some((perm) => {
 			return perm.module === module._id;
 		});
@@ -37,7 +35,7 @@ const SideMenu = () => {
 
 	// Compare the returned modules list name with navitems to verify
 	const filteredNavItems = navItems.filter((navItem) => {
-		return filteredModules.some((scopedMenu) => {
+		return filteredModules?.some((scopedMenu) => {
 			return scopedMenu.name === navItem.text || !navItem.toVerify;
 		});
 	});

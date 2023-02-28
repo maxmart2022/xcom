@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Button, Alert, Stack, Chip } from '@mui/material';
 import {
 	Edit,
@@ -11,13 +12,39 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import Header from 'components/Header';
 import useApi from 'hooks/useApi';
-import { useNavigate } from 'react-router-dom';
+import { hasPermission } from 'utils/hasPermission';
 
-const Users = () => {
+const Users = ({ currentUser, modules }) => {
 	const [users, setUsers] = useState(null);
 	const [refreshData, setRefreshData] = useState(false);
 	const { loading, error, fetchData, putData, deleteData, setError } = useApi();
 	const navigate = useNavigate();
+
+	const canAddorEdit = hasPermission(
+		['Users'],
+		['Create', 'Edit'],
+		currentUser,
+		modules
+	);
+	const canSuspend = hasPermission(
+		['Users'],
+		['Suspend'],
+		currentUser,
+		modules
+	);
+	const canActivate = hasPermission(
+		['Users'],
+		['Activate'],
+		currentUser,
+		modules
+	);
+	const canAuthorise = hasPermission(
+		['Users'],
+		['Authorise'],
+		currentUser,
+		modules
+	);
+	const canDelete = hasPermission(['Users'], ['Delete'], currentUser, modules);
 
 	useEffect(() => {
 		const getUsers = async () => {
@@ -32,14 +59,23 @@ const Users = () => {
 	}, [refreshData]);
 
 	const handleEdit = (userId) => {
+		if (!canEdit) {
+			navigate('/access-forbidden');
+		}
 		navigate(`${userId}`);
 	};
 
 	const handlePermit = (userId) => {
+		if (!canAuthorise) {
+			navigate('/access-forbidden');
+		}
 		navigate(`permit/${userId}`);
 	};
 
 	const handleActivation = async (userId, userActive) => {
+		if (!canActivate && !canSuspend) {
+			navigate('/access-forbidden');
+		}
 		try {
 			await putData(`auth/suspend/${userId}`, { isActive: !userActive });
 			setRefreshData(!refreshData);
@@ -50,6 +86,9 @@ const Users = () => {
 	};
 
 	const handleDelete = async (userId) => {
+		if (!canDelete) {
+			navigate('/access-forbidden');
+		}
 		try {
 			await deleteData(`auth/delete/${userId}`);
 			setRefreshData(!refreshData);
@@ -85,46 +124,63 @@ const Users = () => {
 			field: '',
 			headerName: ' ',
 			flex: 1,
+			hide:
+				!canActivate &&
+				!canSuspend &&
+				!canAddorEdit &&
+				!canAuthorise &&
+				!canDelete,
 			renderCell: (params) => (
 				<Stack direction='row' spacing={2}>
-					<Button
-						variant='contained'
-						size='small'
-						color='info'
-						startIcon={<Key />}
-						onClick={() => handlePermit(params.row._id)}
-					>
-						Authorise
-					</Button>
-					<Button
-						variant='contained'
-						size='small'
-						color='info'
-						startIcon={<Edit />}
-						onClick={() => handleEdit(params.row._id)}
-					>
-						Edit
-					</Button>
-					<Button
-						variant='contained'
-						size='small'
-						color={params.row.isActive ? 'warning' : 'success'}
-						startIcon={params.row.isActive ? <PersonOff /> : <VerifiedUser />}
-						onClick={() =>
-							handleActivation(params.row._id, params.row.isActive)
-						}
-					>
-						{params.row.isActive ? 'Suspend' : 'Activate'}
-					</Button>
-					<Button
-						variant='contained'
-						size='small'
-						color='error'
-						startIcon={<Delete />}
-						onClick={() => handleDelete(params.row._id)}
-					>
-						Delete
-					</Button>
+					{canAuthorise && (
+						<Button
+							variant='contained'
+							size='small'
+							color='info'
+							startIcon={<Key />}
+							onClick={() => handlePermit(params.row._id)}
+						>
+							Authorise
+						</Button>
+					)}
+					{canAddorEdit && (
+						<Button
+							variant='contained'
+							size='small'
+							color='info'
+							startIcon={<Edit />}
+							onClick={() => handleEdit(params.row._id)}
+						>
+							Edit
+						</Button>
+					)}
+					{canActivate ||
+						(canSuspend && (
+							<Button
+								variant='contained'
+								size='small'
+								color={params.row.isActive ? 'warning' : 'success'}
+								startIcon={
+									params.row.isActive ? <PersonOff /> : <VerifiedUser />
+								}
+								onClick={() =>
+									handleActivation(params.row._id, params.row.isActive)
+								}
+							>
+								{params.row.isActive ? 'Suspend' : 'Activate'}
+							</Button>
+						))}
+					{canDelete && (
+						<Button
+							variant='contained'
+							size='small'
+							color='error'
+							startIcon={<Delete />}
+							onClick={() => handleDelete(params.row._id)}
+						>
+							Delete
+						</Button>
+					)}
 				</Stack>
 			),
 		},
@@ -138,10 +194,10 @@ const Users = () => {
 			<Header
 				title='Users'
 				subtitle='List of Users'
-				button={[<PersonAddOutlined />, 'New User']}
+				button={canAddorEdit && [<PersonAddOutlined />, 'New User']}
 				linkTo='/users/new'
 			/>
-			<Box mt='40px'>
+			<Box>
 				{error && (
 					<Alert severity='error' mb='20px'>
 						{JSON.stringify(error)}

@@ -27,7 +27,7 @@ const UserProvider = ({ children }) => {
 	return (
 		<UserContext.Provider value={currentUser}>
 			{loading ? (
-				<Skeleton sx={{ height: 190 }} animation='wave' variant='rectangular' />
+				<Skeleton animation='wave' variant='rectangular' />
 			) : (
 				<React.Fragment>{children}</React.Fragment>
 			)}

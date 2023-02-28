@@ -7,7 +7,7 @@ const NewUser = () => {
 	return (
 		<Box m='1.5rem 2.5rem'>
 			<Header title='User Form' subtitle='Create user' />
-			<Box mt='40px'>
+			<Box>
 				<UserForm />
 			</Box>
 		</Box>

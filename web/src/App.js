@@ -16,6 +16,9 @@ import Users from 'pages/users';
 import NewUser from 'pages/users/new';
 import UserPermissions from 'pages/users/permissions';
 import RequirePermission from 'components/RequirePermission';
+import { UserProvider } from 'context/UserProvider';
+import { ModuleProvider } from 'context/ModuleProvider';
+import AccessForbidden from 'pages/accessForbidden';
 
 function App() {
 	const { state } = useContext(ThemeContext);
@@ -30,7 +33,15 @@ function App() {
 							<Route path='/login' element={<Login />}></Route>
 							<Route element={<PersistLogin />}>
 								<Route element={<RequireAuth />}>
-									<Route element={<Layout />}>
+									<Route
+										element={
+											<UserProvider>
+												<ModuleProvider>
+													<Layout />
+												</ModuleProvider>
+											</UserProvider>
+										}
+									>
 										<Route path='/dashboard' element={<Dashboard />} />
 										<Route
 											element={
@@ -63,8 +74,9 @@ function App() {
 													allowedAction={['Create', 'Edit']}
 												/>
 											}
-										></Route>
-										<Route path='/users/:id' element={<NewUser />} />
+										>
+											<Route path='/users/:id' element={<NewUser />} />
+										</Route>
 										<Route
 											element={
 												<RequirePermission
@@ -75,6 +87,10 @@ function App() {
 										>
 											<Route path='/users' element={<Users />} />
 										</Route>
+										<Route
+											path='/access-forbidden'
+											element={<AccessForbidden />}
+										/>
 									</Route>
 								</Route>
 							</Route>

@@ -9,7 +9,7 @@ const UserPermissions = () => {
 	return (
 		<Box m='1.5rem 2.5rem'>
 			<Header title='User Permissions' subtitle='Permits user' />
-			<Box mt='40px'>
+			<Box>
 				<PermissionForm userId={id} />
 			</Box>
 		</Box>

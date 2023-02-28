@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import {
 	Menu as MenuIcon,
 	Search,
@@ -22,13 +22,11 @@ import FlexBetween from 'components/FlexBetween';
 import ThemeToggler from 'components/ThemeToggler';
 import useLogout from 'hooks/useLogout';
 import { useNavigate } from 'react-router-dom';
-import { UserContext } from 'context/UserProvider';
 
-const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
+const Navbar = ({ isSidebarOpen, setIsSidebarOpen, currentUser }) => {
 	const theme = useTheme();
 	const navigate = useNavigate();
 	const logout = useLogout();
-	const user = useContext(UserContext);
 
 	const [anchorEl, setAnchorEl] = useState(null);
 	const isOpen = Boolean(anchorEl);
@@ -97,13 +95,13 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 									fontSize='0.85rem'
 									sx={{ color: theme.palette.secondary[100] }}
 								>
-									{user?.email}
+									{currentUser?.email}
 								</Typography>
 								<Typography
 									fontSize='0.75rem'
 									sx={{ color: theme.palette.secondary[200] }}
 								>
-									{user?.isSuperUser ? 'Administrator' : 'Staff'}
+									{currentUser?.isSuperUser ? 'Administrator' : 'Staff'}
 								</Typography>
 							</Box>
 							<ArrowDropDownOutlined

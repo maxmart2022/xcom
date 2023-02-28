@@ -62,7 +62,7 @@ const Actions = () => {
 	return (
 		<Box m='1.5rem 2.5rem'>
 			<Header title='Actions' subtitle='List of Actions' />
-			<Box mt='40px'>
+			<Box>
 				{error && <Alert severity='error'>{JSON.stringify(error)}</Alert>}
 				<Grid container spacing={2}>
 					<Grid item xs={6} container>

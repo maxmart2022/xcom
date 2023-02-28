@@ -25,7 +25,7 @@ export const ModuleProvider = ({ children }) => {
 	return (
 		<ModuleContext.Provider value={modules}>
 			{loading ? (
-				<Skeleton sx={{ height: 190 }} animation='wave' variant='rectangular' />
+				<Skeleton animation='wave' variant='rectangular' />
 			) : (
 				<React.Fragment>{children}</React.Fragment>
 			)}

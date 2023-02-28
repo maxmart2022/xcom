@@ -9,7 +9,7 @@ const Header = ({ title, subtitle, button, linkTo }) => {
 		navigate(linkTo);
 	};
 	return (
-		<Box sx={{ display: 'flex', alignItems: 'center' }}>
+		<Box sx={{ display: 'flex', alignItems: 'center', mb: '20px' }}>
 			<Box sx={{ flexGrow: 1 }}>
 				<Typography
 					variant='h2'
