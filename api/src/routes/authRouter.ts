@@ -9,7 +9,7 @@ import {
 	updateUserController,
 	viewUserController,
 } from '../controllers';
-import { currentUser, validateRequest } from '../middlewares';
+import { currentUser, hasPermission, validateRequest } from '../middlewares';
 import {
 	signinValidator,
 	signupValidator,
@@ -30,11 +30,17 @@ router.post(
 	validateRequest,
 	signinController
 );
-router.get('/api/auth/list', currentUser, listUsersController);
+router.get(
+	'/api/auth/list',
+	currentUser,
+	hasPermission('Users', 'View'),
+	listUsersController
+);
 router.get('/api/auth/view/:id', currentUser, viewUserController);
 router.put(
 	'/api/auth/update/:id',
 	currentUser,
+	hasPermission('Users', 'Edit'),
 	userUpdateValidator,
 	validateRequest,
 	updateUserController

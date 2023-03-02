@@ -19,8 +19,13 @@ const useApi = () => {
 			setLoading(false);
 			if (err.response && err.response.data && err.response.data.errors) {
 				setError(err.response.data.errors[0].message);
-			} else if (err.response?.status === 401 || err.response?.status === 403) {
+			} else if (err.response?.status === 401) {
 				navigate('/login', { state: { from: location }, replace: true });
+			} else if (err.response?.status === 403) {
+				navigate('/access-forbidden', {
+					state: { from: location },
+					replace: true,
+				});
 			} else {
 				setError('Something unexpected happened!');
 			}

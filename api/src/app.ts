@@ -11,6 +11,7 @@ import {
 	tokenRouter,
 	moduleRouter,
 	authorisationRouter,
+	categoryRouter,
 } from './routes';
 
 const app = express();
@@ -35,6 +36,7 @@ app.use(currentUser);
 app.use(actionRouter);
 app.use(moduleRouter);
 app.use(authorisationRouter);
+app.use(categoryRouter);
 
 app.all('*', (req, res) => {
 	throw new NotFoundError();

@@ -51,7 +51,6 @@ const updateModuleController = async (req: Request, res: Response) => {
 	if (nameExists) throw new BadRequestError('Action exists');
 
 	for (let actionValue of Array.from(new Set(actions))) {
-		console.log(actionValue);
 		if (!isValidObjectId(actionValue)) {
 			console.log(actionValue);
 			throw new BadRequestError('Invalid action');

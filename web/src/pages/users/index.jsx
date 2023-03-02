@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Alert, Stack, Chip } from '@mui/material';
 import {
@@ -13,38 +13,29 @@ import { DataGrid } from '@mui/x-data-grid';
 import Header from 'components/Header';
 import useApi from 'hooks/useApi';
 import { hasPermission } from 'utils/hasPermission';
+import { LayoutContext } from 'pages/layout';
 
-const Users = ({ currentUser, modules }) => {
+const Users = () => {
 	const [users, setUsers] = useState(null);
 	const [refreshData, setRefreshData] = useState(false);
 	const { loading, error, fetchData, putData, deleteData, setError } = useApi();
 	const navigate = useNavigate();
+	const { currentUser, modules } = useContext(LayoutContext);
 
-	const canAddorEdit = hasPermission(
-		['Users'],
-		['Create', 'Edit'],
-		currentUser,
-		modules
-	);
-	const canSuspend = hasPermission(
-		['Users'],
-		['Suspend'],
-		currentUser,
-		modules
-	);
-	const canActivate = hasPermission(
-		['Users'],
-		['Activate'],
-		currentUser,
-		modules
-	);
-	const canAuthorise = hasPermission(
-		['Users'],
-		['Authorise'],
-		currentUser,
-		modules
-	);
-	const canDelete = hasPermission(['Users'], ['Delete'], currentUser, modules);
+	const isSuperUser = currentUser?.isSuperUser;
+
+	const canAddorEdit =
+		hasPermission(['Users'], ['Create', 'Edit'], currentUser, modules) ||
+		isSuperUser;
+	const canSuspend =
+		hasPermission(['Users'], ['Suspend'], currentUser, modules) || isSuperUser;
+	const canActivate =
+		hasPermission(['Users'], ['Activate'], currentUser, modules) || isSuperUser;
+	const canAuthorise =
+		hasPermission(['Users'], ['Authorise'], currentUser, modules) ||
+		isSuperUser;
+	const canDelete =
+		hasPermission(['Users'], ['Delete'], currentUser, modules) || isSuperUser;
 
 	useEffect(() => {
 		const getUsers = async () => {
@@ -59,7 +50,7 @@ const Users = ({ currentUser, modules }) => {
 	}, [refreshData]);
 
 	const handleEdit = (userId) => {
-		if (!canEdit) {
+		if (!canAddorEdit) {
 			navigate('/access-forbidden');
 		}
 		navigate(`${userId}`);
@@ -154,22 +145,19 @@ const Users = ({ currentUser, modules }) => {
 							Edit
 						</Button>
 					)}
-					{canActivate ||
-						(canSuspend && (
-							<Button
-								variant='contained'
-								size='small'
-								color={params.row.isActive ? 'warning' : 'success'}
-								startIcon={
-									params.row.isActive ? <PersonOff /> : <VerifiedUser />
-								}
-								onClick={() =>
-									handleActivation(params.row._id, params.row.isActive)
-								}
-							>
-								{params.row.isActive ? 'Suspend' : 'Activate'}
-							</Button>
-						))}
+					{(canActivate || canSuspend) && (
+						<Button
+							variant='contained'
+							size='small'
+							color={params.row.isActive ? 'warning' : 'success'}
+							startIcon={params.row.isActive ? <PersonOff /> : <VerifiedUser />}
+							onClick={() =>
+								handleActivation(params.row._id, params.row.isActive)
+							}
+						>
+							{params.row.isActive ? 'Suspend' : 'Activate'}
+						</Button>
+					)}
 					{canDelete && (
 						<Button
 							variant='contained'
@@ -194,7 +182,12 @@ const Users = ({ currentUser, modules }) => {
 			<Header
 				title='Users'
 				subtitle='List of Users'
-				button={canAddorEdit && [<PersonAddOutlined />, 'New User']}
+				button={
+					(canAddorEdit || currentUser?.isSuperUser) && [
+						<PersonAddOutlined />,
+						'New User',
+					]
+				}
 				linkTo='/users/new'
 			/>
 			<Box>

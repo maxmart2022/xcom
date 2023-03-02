@@ -40,7 +40,7 @@ const navItems = [
 		toVerify: true,
 	},
 	{
-		text: 'Category',
+		text: 'Categories',
 		icon: <CategoryOutlined />,
 		toVerify: true,
 	},

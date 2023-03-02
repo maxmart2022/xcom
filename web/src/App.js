@@ -19,6 +19,8 @@ import RequirePermission from 'components/RequirePermission';
 import { UserProvider } from 'context/UserProvider';
 import { ModuleProvider } from 'context/ModuleProvider';
 import AccessForbidden from 'pages/accessForbidden';
+import Categories from 'pages/categories';
+import NewCateogry from 'pages/categories/new';
 
 function App() {
 	const { state } = useContext(ThemeContext);
@@ -86,6 +88,27 @@ function App() {
 											}
 										>
 											<Route path='/users' element={<Users />} />
+										</Route>
+
+										<Route
+											element={
+												<RequirePermission
+													allowedModule={['Categories']}
+													allowedAction={['Create', 'Edit']}
+												/>
+											}
+										>
+											<Route path='/categories/:id' element={<NewCateogry />} />
+										</Route>
+										<Route
+											element={
+												<RequirePermission
+													allowedModule={['Categories']}
+													allowedAction={['View']}
+												/>
+											}
+										>
+											<Route path='/categories' element={<Categories />} />
 										</Route>
 										<Route
 											path='/access-forbidden'

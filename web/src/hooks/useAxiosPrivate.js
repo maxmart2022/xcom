@@ -22,10 +22,7 @@ const useAxiosPrivate = () => {
 			(response) => response,
 			async (error) => {
 				const prevRequest = error?.config;
-				if (
-					error?.response?.status === 401 ||
-					error?.response?.status === 403
-				) {
+				if (error?.response?.status === 401) {
 					const newAccessToken = await refresh();
 					prevRequest.headers['x-access-token'] = `Bearer ${newAccessToken}`;
 					return axiosPrivate(prevRequest);
