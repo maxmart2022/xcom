@@ -1,0 +1,20 @@
+name: deploy-xcom-api
+
+on:
+  push:
+    branches:
+      - devtest
+    paths:
+      - 'xcom-api/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: cd xcom-api && docker build -t maxmartapp/xcom-api .
+      - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        env:
+          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      - run: docker push maxmartapp/xcom-api
+      

@@ -24,7 +24,7 @@ spec:
   selector:
     app: web
   ports:
-    - name: db
+    - name: web
       protocol: TCP
       port: 3000
       targetPort: 3000

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xcom-api-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xcom-api
+  template:
+    metadata:
+      labels:
+        app: xcom-api
+    spec:
+      containers:
+        - name: xcom-api
+          image: maxmartapp/xcom-api
+          env:
+            - name: MONGO_URI
+              value: "mongodb://xcom-mongo-srv:27017/xcom"
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+            - name: SUPERADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: superman-email
+                  key: SUPERADMIN_EMAIL
+            - name: SUPERADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: superman-password
+                  key: SUPERADMIN_PASSWORD
+            - name: SUPERADMIN_ROLE
+              valueFrom:
+                secretKeyRef:
+                  name: superman-role
+                  key: SUPERADMIN_ROLE
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: xcom-api-srv
+spec:
+  selector:
+    app: xcom-api
+  ports:
+    - name: xcom-api
+      protocol: TCP
+      port: 4000
+      targetPort: 4000
