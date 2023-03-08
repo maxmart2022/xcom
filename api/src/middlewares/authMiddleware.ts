@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { NotAuthorizedError } from '../errors';
-import { findSuperman } from '../models/userModel';
+import { findSuperman } from '../models';
 
 interface UserPayload {
 	email: string;
@@ -34,9 +34,7 @@ export const currentUser = (
 		throw new NotAuthorizedError();
 	}
 
-	let secret = req.header('x-refresh-token')
-		? process.env.REFRESH_TOKEN!
-		: process.env.JWT_KEY!;
+	let secret = process.env.JWT_KEY!;
 
 	try {
 		const payload = jwt.verify(token, secret) as UserPayload;
@@ -45,6 +43,17 @@ export const currentUser = (
 		throw new NotAuthorizedError();
 	}
 
+	next();
+};
+
+export const requireAuth = (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	if (!req.currentUser || !req.currentUser.isActive) {
+		throw new NotAuthorizedError();
+	}
 	next();
 };
 
@@ -63,7 +72,7 @@ export const requireSuperman = async (
 	res: Response,
 	next: NextFunction
 ) => {
-	const superman = findSuperman();
+	const superman = await findSuperman();
 	if (!superman) {
 		console.log('No Superman');
 		throw new NotAuthorizedError();

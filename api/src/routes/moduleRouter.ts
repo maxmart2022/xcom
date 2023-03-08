@@ -6,37 +6,27 @@ import {
 	updateModuleController,
 	viewModuleController,
 } from '../controllers';
-import { currentUser, isSuperman, validateRequest } from '../middlewares';
+import { isSuperman, validateRequest } from '../middlewares';
 import { moduleValidator } from '../validators/moduleValidator';
 
 const router = express.Router();
 
-router.get('/api/module/list', currentUser, isSuperman, listModulesController);
+router.get('/api/module/list', listModulesController);
 router.post(
 	'/api/module/new',
-	currentUser,
 	isSuperman,
 	moduleValidator,
 	validateRequest,
 	newModuleController
 );
-router.get(
-	'/api/module/view/:id',
-	currentUser,
-	isSuperman,
-	viewModuleController
-);
+router.get('/api/module/view/:id', isSuperman, viewModuleController);
 router.put(
-	'/api/module/udate/:id',
-	currentUser,
+	'/api/module/update/:id',
 	isSuperman,
+	moduleValidator,
+	validateRequest,
 	updateModuleController
 );
-router.delete(
-	'/api/module/delete/:id',
-	currentUser,
-	isSuperman,
-	deleteModuleController
-);
+router.delete('/api/module/delete/:id', isSuperman, deleteModuleController);
 
 export { router as moduleRouter };

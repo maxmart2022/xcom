@@ -13,15 +13,13 @@ const newModuleController = async (req: Request, res: Response) => {
 	const nameExists = await Module.findOne({ name });
 	if (nameExists) throw new BadRequestError('Module name found');
 
-	for (let actionValue of actions) {
+	for (let actionValue of Array.from(new Set(actions))) {
 		if (!isValidObjectId(actionValue))
 			throw new BadRequestError('Invalid action');
 
 		const actionExists = await Action.findById(actionValue);
 		if (!actionExists) throw new BadRequestError('Such an action not found');
 	}
-
-	console.log(actions);
 
 	const module = Module.build({ name, actions });
 	await module.save();
@@ -45,13 +43,24 @@ const updateModuleController = async (req: Request, res: Response) => {
 	if (!isValidObjectId(moduleId))
 		throw new BadRequestError('Invalid module id');
 
-	const { name, actions } = req.body;
-
 	const module = await Module.findById(moduleId);
 	if (!module) throw new BadRequestError('Module not found');
 
-	module.set({ name, actions });
-	await module.save();
+	const { name, actions } = req.body;
+	const nameExists = await Module.findOne({ name, _id: { $ne: moduleId } });
+	if (nameExists) throw new BadRequestError('Action exists');
+
+	for (let actionValue of Array.from(new Set(actions))) {
+		if (!isValidObjectId(actionValue)) {
+			console.log(actionValue);
+			throw new BadRequestError('Invalid action');
+		}
+
+		const actionExists = await Action.findById(actionValue);
+		if (!actionExists) throw new BadRequestError('Such an action not found');
+	}
+
+	await module.set('actions', actions).set('name', name).save();
 
 	res.status(201).send(module);
 };

@@ -9,6 +9,8 @@ const Sidebar = ({
 	isSidebarOpen,
 	setIsSidebarOpen,
 	isNonMobile,
+	currentUser,
+	modules,
 }) => {
 	const theme = useTheme();
 
@@ -46,7 +48,7 @@ const Sidebar = ({
 								)}
 							</FlexBetween>
 						</Box>
-						<SideMenu />
+						<SideMenu currentUser={currentUser} modules={modules} />
 					</Box>
 				</Drawer>
 			)}

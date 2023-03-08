@@ -10,9 +10,6 @@ export class NotFoundError extends CustomError {
 	}
 
 	serializeErrors() {
-		if (this.statusCode === 404) {
-			return [{ message: 'URL Does not exists' }];
-		}
-		return [{ message: 'Method not allowed' }];
+		return [{ message: 'URL Does not exists' }];
 	}
 }

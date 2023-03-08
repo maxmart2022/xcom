@@ -1,21 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, useTheme } from '@mui/material';
+import { Box, Grid, Button, Alert, Stack } from '@mui/material';
+import { Edit } from '@mui/icons-material';
 import { DataGrid } from '@mui/x-data-grid';
 import Header from 'components/Header';
-import useActionService from 'services/actionService';
 import ActionForm from 'forms/ActionForm';
+import useApi from 'hooks/useApi';
 
 const Actions = () => {
-	const theme = useTheme();
+	const [actions, setActions] = useState(null);
 	const [refreshData, setRefreshData] = useState(false);
-	const { getActions, loading, data } = useActionService();
+	const [actionId, setActionId] = useState(null);
+
+	const { loading, error, fetchData } = useApi();
 
 	useEffect(() => {
-		const getData = async () => {
-			await getActions();
+		const getActions = async () => {
+			try {
+				const response = await fetchData('action/list');
+				setActions(response);
+			} catch (err) {
+				console.error(err);
+			}
 		};
-		getData();
-		// eslint-disable-next-line
+		getActions();
 	}, [refreshData]);
 
 	const handleAddAction = () => {
@@ -28,6 +35,24 @@ const Actions = () => {
 			headerName: 'Name',
 			flex: 1,
 		},
+		{
+			field: '',
+			headerName: ' ',
+			flex: 1,
+			renderCell: (params) => (
+				<Stack direction='row' spacing={2}>
+					<Button
+						variant='contained'
+						size='small'
+						color='info'
+						startIcon={<Edit />}
+						onClick={() => setActionId(params.row._id)}
+					>
+						Edit
+					</Button>
+				</Stack>
+			),
+		},
 	];
 
 	const localeText = {
@@ -37,46 +62,26 @@ const Actions = () => {
 	return (
 		<Box m='1.5rem 2.5rem'>
 			<Header title='Actions' subtitle='List of Actions' />
-			<Box
-				mt='40px'
-				sx={{
-					'& .MuiDataGrid-root': {
-						border: 'none',
-					},
-					'& .MuiDataGrid-cell': {
-						borderBottom: 'none',
-					},
-					'& .MuiDataGrid-columnHeaders': {
-						backgroundColor: theme.palette.background.alt,
-						color: theme.palette.secondary[100],
-						borderBottom: 'none',
-					},
-					'& .MuiDataGrid-virtualScroller': {
-						backgroundColor: theme.palette.primary.light,
-					},
-					'& .MuiDataGrid-footerContainer': {
-						backgroundColor: theme.palette.background.alt,
-						color: theme.palette.secondary[100],
-						borderTop: 'none',
-					},
-					'& .MuiDataGrid-toolbarContainer .MuiButton-text': {
-						color: `${theme.palette.secondary[200]} !important`,
-					},
-				}}
-			>
+			<Box>
+				{error && <Alert severity='error'>{JSON.stringify(error)}</Alert>}
 				<Grid container spacing={2}>
-					<Grid item xs={8} container>
+					<Grid item xs={6} container>
 						<DataGrid
 							autoHeight
-							loading={loading || !data}
+							loading={loading || !actions}
 							getRowId={(row) => row._id}
-							rows={data || []}
+							rows={actions || []}
 							columns={columns}
 							localeText={localeText}
+							disableSelectionOnClick
 						/>
 					</Grid>
-					<Grid item xs={4}>
-						<ActionForm onAddAction={handleAddAction} />
+					<Grid item xs={6}>
+						<ActionForm
+							onAddAction={handleAddAction}
+							actionId={actionId}
+							setActionId={setActionId}
+						/>
 					</Grid>
 				</Grid>
 			</Box>
