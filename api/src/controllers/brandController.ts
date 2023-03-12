@@ -21,16 +21,22 @@ const viewBrandController = async (req: Request, res: Response) => {
 
 // Create
 const newBrandController = async (req: Request, res: Response) => {
-	const { name, parent, brandOwner } = req.body;
+	const { name, brandOwner } = req.body;
+	let { parent } = req.body;
 
 	const brandExists = await Brand.findOne({ name });
 	if (brandExists) throw new BadRequestError('Brand exists !!!');
 
-	if (typeof parent !== 'undefined' && !ObjectId.isValid(parent)) {
-		throw new BadRequestError('Parent brand not found');
+	if (parent !== '') {
+		if (!ObjectId.isValid(parent)) {
+			throw new BadRequestError('Invalid parent');
+		} else {
+			const parentBrand = await Brand.findById(parent);
+			if (!parentBrand) throw new BadRequestError("Parent Brand doesn't exist");
+		}
+	} else {
+		parent = null;
 	}
-	const parentBrand = await Brand.findById(parent);
-	if (!parentBrand) throw new BadRequestError("Parent Brand doesn't exist");
 
 	const createdBy = new ObjectId(req.currentUser?.id);
 	const user = await User.findById(createdBy);
@@ -50,36 +56,40 @@ const newBrandController = async (req: Request, res: Response) => {
 // Update
 const updateBrandController = async (req: Request, res: Response) => {
 	const brandId = req.params.id;
-	const { name, parent, brandOwner } = req.body;
+	const { name, brandOwner } = req.body;
+	let { parent } = req.body;
 
 	// Check the id passed is valid or not
-	if (!ObjectId.isValid(brandId)) throw new BadRequestError('Brand not found');
+	if (!ObjectId.isValid(brandId)) throw new NotFoundError();
 
+	// Fetch the brand with the given id
 	const brand = await Brand.findById(brandId);
 	if (!brand) throw new NotFoundError();
 
-	// Brand name unique validation, brand where name=name and id!=givenId
+	// brand name unique validation, brand where name=name and id!=givenId
 	const brandExists = await Brand.findOne({
 		name,
-		brandOwner,
 		_id: { $ne: brandId },
 	});
 	if (brandExists) throw new BadRequestError('Brand exists !!!');
 
-	if (typeof parent != 'undefined') {
-		if (!ObjectId.isValid(parent))
-			throw new BadRequestError('Parent brand is invalid');
-		const parentBrand = await Brand.findById(parent);
-		if (!parentBrand)
-			throw new BadRequestError(`Parent Brand, ${parent} doesn't exist`);
+	if (parent !== '' && typeof parent !== 'undefined') {
+		if (!ObjectId.isValid(parent)) {
+			throw new BadRequestError('Invalid parent');
+		} else {
+			const parentBrand = await Brand.findById(parent);
+			if (!parentBrand) throw new BadRequestError("Parent Brand doesn't exist");
+		}
+	} else {
+		parent = null;
 	}
 
-	// only name changes
-	if (
-		brand.name !== name &&
-		brand.parent.equals(new mongoose.Types.ObjectId(parent))
-	) {
-		brand.set({ name, parent });
+	const updatedBy = new ObjectId(req.currentUser?.id);
+	const user = await User.findById(updatedBy);
+	if (!user) throw new BadRequestError('Such a user not found');
+
+	if (brand.name !== name && brand.parent === parent) {
+		brand.set({ name, parent, brandOwner, lastUpdatedBy: updatedBy });
 		await brand.save();
 	} else {
 		// Removing the child from the current parent if alreay have a parent
@@ -87,25 +97,25 @@ const updateBrandController = async (req: Request, res: Response) => {
 			const currentParentBrand = await Brand.findById(brand.parent);
 			if (!currentParentBrand)
 				throw new BadRequestError(
-					`Parent Brand, ${brand.parent} removed but not in parent`
+					`Parent Brand, ${brand.parent} removed but not in its child`
 				);
 
-			const filteredChild = brand.child.filter((brandChild) => {
+			const filteredChild = currentParentBrand.child.filter((brandChild) => {
 				return !brandChild.equals(new mongoose.Types.ObjectId(brandId));
 			}); // Filtering the current child array with the current brand ID
-			console.log(filteredChild);
 			await Brand.findByIdAndUpdate(brand.parent, {
 				$set: { child: filteredChild },
 			});
 		}
 		// Update with new inputs
-		brand.set({ name, parent, brandOwner });
+		brand.set({ name, parent, brandOwner, lastUpdatedBy: updatedBy });
 		await brand.save();
 		// Updating child in parent brand
 		if (brand.parent !== null) {
 			buildSubBrand(brand);
 		}
 	}
+
 	res.status(201).send(brand);
 };
 
@@ -122,13 +132,14 @@ const deleteBrandController = async (req: Request, res: Response) => {
 	const brandParent = brand.parent;
 	const brandChild = brand.child;
 	// Updating child in the parent brand
+	if (brandParent !== null) {
+		const parent = await Brand.findById(brandParent);
+		if (!parent) throw new BadRequestError('Parent in this brand not found');
 
-	const parent = await Brand.findById(brandParent);
-	if (!parent) throw new BadRequestError('Parent in this brand not found');
-
-	await Brand.findByIdAndUpdate(brandParent, {
-		$set: { child: new ObjectId(brandId) },
-	});
+		await Brand.findByIdAndUpdate(brandParent, {
+			$set: { child: new ObjectId(brandId) },
+		});
+	}
 
 	// Updating parent in child
 
@@ -138,7 +149,7 @@ const deleteBrandController = async (req: Request, res: Response) => {
 			if (!childBrand) throw new BadRequestError('Child not found');
 
 			await Brand.findByIdAndUpdate(childId, {
-				$set: { parent: new ObjectId(brandId) },
+				$set: { parent: null },
 			});
 		}
 	}
@@ -147,6 +158,11 @@ const deleteBrandController = async (req: Request, res: Response) => {
 
 	res.status(200).send(brand);
 };
+
+// const deleteBrands = async (req: Request, res: Response) => {
+// 	const brands = await Brand.deleteMany({});
+// 	res.status(200).send(brands);
+// };
 
 export {
 	listBrandController,

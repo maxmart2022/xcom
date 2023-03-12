@@ -6,6 +6,8 @@ import {
 	Groups2Outlined,
 	CategoryOutlined,
 	AttachMoneyOutlined,
+	AttributionOutlined,
+	PixOutlined,
 } from '@mui/icons-material';
 
 const navItems = [
@@ -53,6 +55,18 @@ const navItems = [
 		text: 'Products',
 		icon: <ShoppingCartOutlined />,
 		toVerify: true,
+		subMenu: [
+			{
+				text: 'Variants',
+				icon: <PixOutlined />,
+				toVerify: true,
+			},
+			{
+				text: 'Products',
+				icon: <ShoppingCartOutlined />,
+				toVerify: true,
+			},
+		],
 	},
 ];
 

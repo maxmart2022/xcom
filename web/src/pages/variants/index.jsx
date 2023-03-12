@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Alert, Stack, Chip } from '@mui/material';
-import { DomainAddOutlined, Edit, Delete } from '@mui/icons-material';
+import { Edit, Delete, PixOutlined } from '@mui/icons-material';
 import { DataGrid } from '@mui/x-data-grid';
 import Header from 'components/Header';
 import { LayoutContext } from 'pages/layout';
 import useApi from 'hooks/useApi';
 import { hasPermission } from 'utils/hasPermission';
 
-const Categories = () => {
-	const [categories, setCategories] = useState([]);
+const Variants = () => {
+	const [variants, setVariants] = useState([]);
 	const [refreshData, setRefreshData] = useState(false);
 	const { loading, error, fetchData, deleteData, setError } = useApi();
 	const navigate = useNavigate();
@@ -18,37 +18,37 @@ const Categories = () => {
 	const isSuperUser = currentUser?.isSuperUser;
 
 	const canAddorEdit =
-		hasPermission(['Categories'], ['Create', 'Edit'], currentUser, modules) ||
+		hasPermission(['Variants'], ['Create', 'Edit'], currentUser, modules) ||
 		isSuperUser;
 	const canDelete =
-		hasPermission(['Categories'], ['Delete'], currentUser, modules) ||
+		hasPermission(['Variants'], ['Delete'], currentUser, modules) ||
 		isSuperUser;
 
 	useEffect(() => {
-		const getCategories = async () => {
+		const getVariants = async () => {
 			try {
-				const response = await fetchData('category/list');
-				setCategories(response);
+				const response = await fetchData('variant/list');
+				setVariants(response);
 			} catch (err) {
 				console.error(err);
 			}
 		};
-		getCategories();
+		getVariants();
 	}, [refreshData]);
 
-	const handleEdit = (categoryId) => {
+	const handleEdit = (variantId) => {
 		if (!canAddorEdit) {
 			navigate('/access-forbidden');
 		}
-		navigate(`${categoryId}`);
+		navigate(`${variantId}`);
 	};
 
-	const handleDelete = async (categoryId) => {
+	const handleDelete = async (variantId) => {
 		if (!canDelete) {
 			navigate('/access-forbidden');
 		}
 		try {
-			await deleteData(`category/delete/${categoryId}`);
+			await deleteData(`variant/delete/${variantId}`);
 			setRefreshData(!refreshData);
 			setError(null);
 		} catch (err) {
@@ -59,29 +59,29 @@ const Categories = () => {
 	const columns = [
 		{
 			field: 'name',
-			headerName: 'Category Name',
+			headerName: 'Variant Name',
 			flex: 1,
 		},
 		{
-			field: 'parent',
-			headerName: 'Parent Category',
+			field: 'values',
+			headerName: 'Variant Values',
 			flex: 1,
 			renderCell: (params) => (
-				<div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-					{params.row.parent.map((parentCategory, index) => (
-						<Chip label={parentCategory.name} key={index} />
+				<div style={{ padding: '10px' }}>
+					{params.row.values.map((value) => (
+						<Chip label={value} sx={{ margin: '1px' }} />
 					))}
 				</div>
 			),
 		},
 		{
-			field: 'child',
-			headerName: 'Child Category',
+			field: 'categories',
+			headerName: 'Categories',
 			flex: 1,
 			renderCell: (params) => (
-				<div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-					{params.row.child.map((childCategory, index) => (
-						<Chip label={childCategory.name} key={index} />
+				<div>
+					{params.row.categories.map((category, index) => (
+						<Chip label={category.name} key={index} sx={{ margin: '1px' }} />
 					))}
 				</div>
 			),
@@ -127,15 +127,15 @@ const Categories = () => {
 	return (
 		<Box m='1.5rem 2.5rem'>
 			<Header
-				title='Categories'
-				subtitle='List of Categories'
+				title='Variants'
+				subtitle='List of Variants'
 				button={
 					(canAddorEdit || currentUser?.isSuperUser) && [
-						<DomainAddOutlined />,
-						'New Category',
+						<PixOutlined />,
+						'New Variant',
 					]
 				}
-				linkTo='/categories/new'
+				linkTo='/variants/new'
 			/>
 			<Box>
 				{error && (
@@ -145,15 +145,16 @@ const Categories = () => {
 				)}
 				<DataGrid
 					autoHeight
-					loading={loading || !categories}
+					loading={loading || !variants}
 					getRowId={(row) => row.id}
-					rows={categories || []}
+					rows={variants || []}
 					columns={columns}
 					localeText={localeText}
+					getRowHeight={() => 'auto'}
 				/>
 			</Box>
 		</Box>
 	);
 };
 
-export default Categories;
+export default Variants;

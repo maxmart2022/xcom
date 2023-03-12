@@ -15,6 +15,7 @@ interface CategoryDoc extends mongoose.Document {
 	parent: [mongoose.Types.ObjectId];
 	child: [mongoose.Types.ObjectId];
 	createdBy: mongoose.Types.ObjectId;
+	lastUpdatedBy: mongoose.Types.ObjectId;
 }
 
 const categorySchema = new mongoose.Schema(

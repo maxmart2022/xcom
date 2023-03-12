@@ -8,8 +8,8 @@ import { LayoutContext } from 'pages/layout';
 import useApi from 'hooks/useApi';
 import { hasPermission } from 'utils/hasPermission';
 
-const Categories = () => {
-	const [categories, setCategories] = useState([]);
+const Brands = () => {
+	const [brands, setBrands] = useState([]);
 	const [refreshData, setRefreshData] = useState(false);
 	const { loading, error, fetchData, deleteData, setError } = useApi();
 	const navigate = useNavigate();
@@ -18,37 +18,36 @@ const Categories = () => {
 	const isSuperUser = currentUser?.isSuperUser;
 
 	const canAddorEdit =
-		hasPermission(['Categories'], ['Create', 'Edit'], currentUser, modules) ||
+		hasPermission(['Brands'], ['Create', 'Edit'], currentUser, modules) ||
 		isSuperUser;
 	const canDelete =
-		hasPermission(['Categories'], ['Delete'], currentUser, modules) ||
-		isSuperUser;
+		hasPermission(['Brands'], ['Delete'], currentUser, modules) || isSuperUser;
 
 	useEffect(() => {
-		const getCategories = async () => {
+		const getBrands = async () => {
 			try {
-				const response = await fetchData('category/list');
-				setCategories(response);
+				const response = await fetchData('brand/list');
+				setBrands(response);
 			} catch (err) {
 				console.error(err);
 			}
 		};
-		getCategories();
+		getBrands();
 	}, [refreshData]);
 
-	const handleEdit = (categoryId) => {
+	const handleEdit = (brandId) => {
 		if (!canAddorEdit) {
 			navigate('/access-forbidden');
 		}
-		navigate(`${categoryId}`);
+		navigate(`${brandId}`);
 	};
 
-	const handleDelete = async (categoryId) => {
+	const handleDelete = async (brandId) => {
 		if (!canDelete) {
 			navigate('/access-forbidden');
 		}
 		try {
-			await deleteData(`category/delete/${categoryId}`);
+			await deleteData(`brand/delete/${brandId}`);
 			setRefreshData(!refreshData);
 			setError(null);
 		} catch (err) {
@@ -59,29 +58,29 @@ const Categories = () => {
 	const columns = [
 		{
 			field: 'name',
-			headerName: 'Category Name',
+			headerName: 'Brand Name',
 			flex: 1,
 		},
 		{
 			field: 'parent',
-			headerName: 'Parent Category',
+			headerName: 'Parent Brand',
 			flex: 1,
 			renderCell: (params) => (
 				<div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-					{params.row.parent.map((parentCategory, index) => (
-						<Chip label={parentCategory.name} key={index} />
-					))}
+					<Chip
+						label={params.row.parent ? params.row.parent.name : 'No parent'}
+					/>
 				</div>
 			),
 		},
 		{
 			field: 'child',
-			headerName: 'Child Category',
+			headerName: 'Child Brands',
 			flex: 1,
 			renderCell: (params) => (
 				<div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-					{params.row.child.map((childCategory, index) => (
-						<Chip label={childCategory.name} key={index} />
+					{params.row.child.map((childBrand) => (
+						<Chip label={childBrand.name} key={childBrand.id} />
 					))}
 				</div>
 			),
@@ -127,15 +126,15 @@ const Categories = () => {
 	return (
 		<Box m='1.5rem 2.5rem'>
 			<Header
-				title='Categories'
-				subtitle='List of Categories'
+				title='Brands'
+				subtitle='List of Brands'
 				button={
 					(canAddorEdit || currentUser?.isSuperUser) && [
 						<DomainAddOutlined />,
-						'New Category',
+						'New Brand',
 					]
 				}
-				linkTo='/categories/new'
+				linkTo='/brands/new'
 			/>
 			<Box>
 				{error && (
@@ -145,9 +144,9 @@ const Categories = () => {
 				)}
 				<DataGrid
 					autoHeight
-					loading={loading || !categories}
+					loading={loading || !brands}
 					getRowId={(row) => row.id}
-					rows={categories || []}
+					rows={brands || []}
 					columns={columns}
 					localeText={localeText}
 				/>
@@ -156,4 +155,4 @@ const Categories = () => {
 	);
 };
 
-export default Categories;
+export default Brands;

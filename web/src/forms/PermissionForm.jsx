@@ -62,7 +62,6 @@ const PermissionForm = ({ userId }) => {
 		if (reason === 'clickaway') {
 			return;
 		}
-
 		setOpen(false);
 	};
 
@@ -123,7 +122,12 @@ const PermissionForm = ({ userId }) => {
 				}
 			}
 
-			permissions[moduleIndex].actions = actions;
+			if (actions.length > 0) {
+				permissions[moduleIndex].actions = actions;
+			} else {
+				permissions.splice(moduleIndex, 1);
+			}
+
 			return { ...prevValues, permissions };
 		});
 	};
@@ -199,6 +203,7 @@ const PermissionForm = ({ userId }) => {
 			<Snackbar
 				open={open}
 				autoHideDuration={6000}
+				onClose={handleClose}
 				message='Permission saved'
 			/>
 		</>

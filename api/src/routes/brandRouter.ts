@@ -13,27 +13,33 @@ const router = express.Router();
 router.get(
 	'/api/brand/list',
 	requireAuth,
-	hasPermission('brands', 'View'),
+	hasPermission('Brands', 'View'),
 	listBrandController
 );
 router.post(
 	'/api/brand/new',
 	requireAuth,
-	hasPermission('brands', 'Create'),
+	hasPermission('Brands', 'Create'),
 	newBrandController
 );
 router.get('/api/brand/view/:id', requireAuth, viewBrandController);
 router.put(
 	'/api/brand/update/:id',
 	requireAuth,
-	hasPermission('brands', 'Edit'),
+	hasPermission('Brands', 'Edit'),
 	updateBrandController
 );
 router.delete(
 	'/api/brand/delete/:id',
 	requireAuth,
-	hasPermission('brands', 'Delete'),
+	hasPermission('Brands', 'Delete'),
 	deleteBrandController
 );
+// router.delete(
+// 	'/api/brand/anonymous',
+// 	requireAuth,
+// 	hasPermission('brands', 'Delete'),
+// 	deleteBrands
+// );
 
 export { router as brandRouter };

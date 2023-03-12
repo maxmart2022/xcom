@@ -5,26 +5,32 @@ import {
 	Button,
 	useTheme,
 	Stack,
-	Checkbox,
 	TextField,
 	CircularProgress,
 	Alert,
+	Checkbox,
 	Autocomplete,
 } from '@mui/material';
 import {
+	Add,
+	Delete,
 	SaveOutlined,
 	CheckBoxOutlineBlank,
 	CheckBox,
 } from '@mui/icons-material';
-import categorySchema from 'validations/categorySchema';
+import variantSchema from 'validations/variantSchema';
 import useForm from 'hooks/useForm';
 import useApi from 'hooks/useApi';
 
-const CategoryForm = () => {
+const VariantForm = () => {
 	const theme = useTheme();
-	const initialValues = useMemo(() => ({ name: '', parent: [] }), []);
+	const initialValues = useMemo(
+		() => ({ name: '', categories: [], values: [''] }),
+		[]
+	);
 	const [categories, setCategories] = useState([]);
 	const [defaultCategories, setDefaultCategories] = useState([]);
+	const [fieldErrors, setFieldErrors] = useState(null);
 	const navigate = useNavigate();
 	const { id } = useParams();
 
@@ -42,15 +48,22 @@ const CategoryForm = () => {
 	}, []);
 
 	const doSubmit = async (payload) => {
+		payload.values.map((variantValue) => {
+			if (variantValue === '') {
+				setFieldErrors(
+					'Variant values cannot be empty. If you have finished adding, delete the unnecessary fileds'
+				);
+			}
+		});
 		let responseData;
 		try {
 			if (id === 'new') {
-				responseData = await postData('category/new', payload);
+				responseData = await postData('variant/new', payload);
 			} else {
-				responseData = await putData(`category/update/${id}`, payload);
+				responseData = await putData(`variant/update/${id}`, payload);
 			}
 			if (responseData) {
-				navigate('/categories');
+				navigate('/variants');
 			}
 		} catch (err) {
 			console.error(err);
@@ -58,50 +71,62 @@ const CategoryForm = () => {
 	};
 	const { values, setValues, handleChange, handleSubmit, errors } = useForm(
 		initialValues,
-		categorySchema,
+		variantSchema,
 		doSubmit
 	);
 
 	useEffect(() => {
-		const getCategoryForm = async () => {
+		const getVariantForm = async () => {
 			if (id === 'new') {
 				return;
 			}
 			try {
-				const response = await fetchData(`category/view/${id}`);
-				const parent = response.parent.map(
-					(parentCategory) => parentCategory.id
+				const response = await fetchData(`variant/view/${id}`);
+				const variantCategories = response.categories.map(
+					(category) => category.id
 				);
+				console.log(variantCategories);
 				setValues({
 					name: response.name,
-					parent,
+					categories: variantCategories,
+					values: response.values,
 				});
 				const filteredCategory = categories.filter((category) => {
-					return parent.some((item) => item === category.id);
+					return variantCategories.some((item) => item === category.id);
 				});
+				console.log(filteredCategory);
 				setDefaultCategories(filteredCategory);
 			} catch (err) {
 				console.error(err);
 			}
 		};
-		getCategoryForm();
+		getVariantForm();
 	}, [id, categories]);
+
+	const handleAddField = () => {
+		setValues({
+			...values,
+			values: [...values.values, ''],
+		});
+	};
+
+	const handleDeleteField = (index) => {
+		setValues((values) => ({
+			...values,
+			values: values.values.filter((variantValue, i) => i !== index),
+		}));
+	};
 
 	return (
 		<>
 			<form style={{ display: 'contents' }} onSubmit={handleSubmit}>
-				<Stack
-					spacing={2}
-					sx={{
-						width: '40ch',
-					}}
-				>
+				<Stack spacing={2}>
 					<TextField
-						type='name'
+						type='text'
 						variant='outlined'
-						placeholder='Category Name'
+						placeholder='Variant Name'
 						name='name'
-						label='Category name'
+						label='Variant name'
 						autoFocus
 						value={values.name || ''}
 						onChange={handleChange}
@@ -129,22 +154,73 @@ const CategoryForm = () => {
 							renderInput={(params) => (
 								<TextField
 									{...params}
-									label='Parent Category'
-									placeholder='Choose Parent Categories'
+									label='Category'
+									placeholder='Choose Categories'
 								/>
 							)}
 							onChange={(event, value) => {
 								setDefaultCategories(value);
 								const categoryId = value.map((category) => category.id);
 								handleChange({
-									target: { name: 'parent', value: categoryId },
+									target: { name: 'categories', value: categoryId },
 								});
 							}}
 						/>
 					)}
+					{values.values.map((variantValue, index) => {
+						return (
+							<Stack direction='row' spacing={2} key={index}>
+								<TextField
+									type='text'
+									name={`values${index}`}
+									variant='outlined'
+									placeholder='Variant Value'
+									label='Variant Value'
+									value={variantValue || ''}
+									onChange={(e) => {
+										handleChange(
+											{
+												target: { name: 'values', value: e.target.value },
+											},
+											index
+										);
+									}}
+									error={!!errors.values}
+									helperText={errors.values}
+								/>
+								<Stack direction='row' sx={{ '& button': { m: 1 } }}>
+									<Button
+										size='small'
+										sx={{
+											backgroundColor: theme.palette.secondary[300],
+											color: theme.palette.background.alt,
+										}}
+										onClick={handleAddField}
+									>
+										<Add />
+									</Button>
+									{values.values.length > 1 && (
+										<Button
+											size='small'
+											sx={{
+												backgroundColor: theme.palette.secondary[300],
+												color: theme.palette.background.alt,
+											}}
+											onClick={() => handleDeleteField(index)}
+										>
+											<Delete />
+										</Button>
+									)}
+								</Stack>
+							</Stack>
+						);
+					})}
 				</Stack>
 
 				{error && <Alert severity='error'>{JSON.stringify(error)}</Alert>}
+				{fieldErrors && (
+					<Alert severity='error'>{JSON.stringify(fieldErrors)}</Alert>
+				)}
 				<Box mt='20px'>
 					<Stack spacing={2} direction='row'>
 						<Button
@@ -168,4 +244,4 @@ const CategoryForm = () => {
 	);
 };
 
-export default CategoryForm;
+export default VariantForm;

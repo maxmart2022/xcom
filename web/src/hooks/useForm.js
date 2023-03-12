@@ -19,23 +19,43 @@ const useForm = (initialValues, validationSchema, doSubmit) => {
 		}
 	};
 
-	const handleChange = (event) => {
+	//   validate property
+	const validateProperty = async (name) => {
+		try {
+			await validationSchema.validateAt(name, values);
+			setErrors({});
+			return true;
+		} catch (err) {
+			const newErrors = {};
+			newErrors[name] = err.errors[0];
+			setErrors(newErrors);
+			return false;
+		}
+	};
+
+	// if (Array.isArray(prevValues[name])) {
+	// 	return {
+	// 		...prevValues,
+	// 		[name]: [...prevValues[name], value],
+	// 	};
+	// } else {
+	// }
+
+	const handleChange = (event, index) => {
 		const { name, value } = event.target;
-		setValues((prevValues) => {
-			// if (Array.isArray(prevValues[name])) {
-			// 	console.log(value);
-			// 	return {
-			// 		...prevValues,
-			// 		[name]: [...prevValues[name], value],
-			// 	};
-			// } else {
-			return {
-				...prevValues,
-				[name]: value,
-			};
-			// }
-		});
-		validate();
+		if (index >= 0) {
+			const newArrayValue = [...values[name]];
+			newArrayValue[index] = value;
+			setValues({ ...values, [name]: newArrayValue });
+		} else {
+			setValues((prevValues) => {
+				return {
+					...prevValues,
+					[name]: value,
+				};
+			});
+		}
+		validateProperty(name);
 	};
 
 	const handleCheckboxChange = (event) => {
@@ -66,6 +86,21 @@ const useForm = (initialValues, validationSchema, doSubmit) => {
 		validate();
 	};
 
+	const handleFileChange = (event) => {
+		const { name, files } = event.target;
+		const fileArray = [];
+
+		for (let i = 0; i < files.length; i++) {
+			const fileURL = URL.createObjectURL(files[i]);
+			fileArray.push(fileURL);
+		}
+
+		setValues({
+			...values,
+			[name]: fileArray,
+		});
+	};
+
 	const handleSubmit = async (event) => {
 		event.preventDefault();
 		if (await validate()) {
@@ -78,6 +113,7 @@ const useForm = (initialValues, validationSchema, doSubmit) => {
 		setValues,
 		handleChange,
 		handleCheckboxChange,
+		handleFileChange,
 		handleSubmit,
 		errors,
 	};

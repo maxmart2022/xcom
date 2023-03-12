@@ -21,6 +21,12 @@ import { ModuleProvider } from 'context/ModuleProvider';
 import AccessForbidden from 'pages/accessForbidden';
 import Categories from 'pages/categories';
 import NewCateogry from 'pages/categories/new';
+import NewBrand from 'pages/brands/new';
+import Brands from 'pages/brands';
+import Variants from 'pages/variants';
+import NewVariant from 'pages/variants/new';
+import NewProduct from 'pages/products/new';
+import Products from 'pages/products';
 
 function App() {
 	const { state } = useContext(ThemeContext);
@@ -109,6 +115,67 @@ function App() {
 											}
 										>
 											<Route path='/categories' element={<Categories />} />
+										</Route>
+
+										<Route
+											element={
+												<RequirePermission
+													allowedModule={['Brands']}
+													allowedAction={['Create', 'Edit']}
+												/>
+											}
+										>
+											<Route path='/brands/:id' element={<NewBrand />} />
+										</Route>
+										<Route
+											element={
+												<RequirePermission
+													allowedModule={['Brands']}
+													allowedAction={['View']}
+												/>
+											}
+										>
+											<Route path='/brands' element={<Brands />} />
+										</Route>
+										<Route
+											element={
+												<RequirePermission
+													allowedModule={['Variants']}
+													allowedAction={['Create', 'Edit']}
+												/>
+											}
+										>
+											<Route path='/variants/:id' element={<NewVariant />} />
+										</Route>
+										<Route
+											element={
+												<RequirePermission
+													allowedModule={['Variants']}
+													allowedAction={['View']}
+												/>
+											}
+										>
+											<Route path='/variants' element={<Variants />} />
+										</Route>
+										<Route
+											element={
+												<RequirePermission
+													allowedModule={['Products']}
+													allowedAction={['Create', 'Edit']}
+												/>
+											}
+										>
+											<Route path='/products/:id' element={<NewProduct />} />
+										</Route>
+										<Route
+											element={
+												<RequirePermission
+													allowedModule={['Products']}
+													allowedAction={['View']}
+												/>
+											}
+										>
+											<Route path='/products' element={<Products />} />
 										</Route>
 										<Route
 											path='/access-forbidden'

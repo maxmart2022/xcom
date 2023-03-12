@@ -5,3 +5,5 @@ export * from './tokenRouter';
 export * from './authorisationRouter';
 export * from './categoryRouter';
 export * from './brandRouter';
+export * from './variantRouter';
+export * from './uploadFileRouter';

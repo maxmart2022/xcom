@@ -26,7 +26,7 @@ const newCategoryController = async (req: Request, res: Response) => {
 	const categoryExists = await Category.findOne({ name });
 	if (categoryExists) throw new BadRequestError('Category exists !!!');
 
-	if (typeof parent != 'undefined') {
+	if (typeof parent !== 'undefined') {
 		for (const parentCateg of parent) {
 			if (!ObjectId.isValid(parentCateg))
 				throw new BadRequestError('Parent category is invalid');
@@ -70,7 +70,7 @@ const updateCategoryController = async (req: Request, res: Response) => {
 	});
 	if (categoryExists) throw new BadRequestError('Category exists !!!');
 
-	if (typeof parent != 'undefined') {
+	if (typeof parent !== 'undefined') {
 		for (const parentCateg of parent) {
 			if (!ObjectId.isValid(parentCateg))
 				throw new BadRequestError('Parent category is invalid');
@@ -81,12 +81,17 @@ const updateCategoryController = async (req: Request, res: Response) => {
 				);
 		}
 	}
+
+	const lastUpdatedBy = new ObjectId(req.currentUser?.id);
+	const user = await User.findById(lastUpdatedBy);
+	if (!user) throw new BadRequestError('Such a user not found');
+
 	// only name changes
 	if (
 		category.name !== name &&
 		category.parent.every((val, index) => val === parent[index])
 	) {
-		category.set({ name, parent });
+		category.set({ name, parent, lastUpdatedBy });
 		await category.save();
 	} else {
 		if (category.parent.length > 0) {
@@ -108,7 +113,7 @@ const updateCategoryController = async (req: Request, res: Response) => {
 			}
 		}
 		// Update with new inputs
-		category.set({ name, parent });
+		category.set({ name, parent, lastUpdatedBy });
 		await category.save();
 		// Updating child in parent category
 		if (category.parent && category.parent.length > 0) {

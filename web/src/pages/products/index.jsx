@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Alert, Stack, Chip } from '@mui/material';
-import { DomainAddOutlined, Edit, Delete } from '@mui/icons-material';
+import { Edit, Delete, PixOutlined } from '@mui/icons-material';
 import { DataGrid } from '@mui/x-data-grid';
 import Header from 'components/Header';
 import { LayoutContext } from 'pages/layout';
 import useApi from 'hooks/useApi';
 import { hasPermission } from 'utils/hasPermission';
 
-const Categories = () => {
-	const [categories, setCategories] = useState([]);
+const Products = () => {
+	const [products, setProducts] = useState([]);
 	const [refreshData, setRefreshData] = useState(false);
 	const { loading, error, fetchData, deleteData, setError } = useApi();
 	const navigate = useNavigate();
@@ -18,37 +18,37 @@ const Categories = () => {
 	const isSuperUser = currentUser?.isSuperUser;
 
 	const canAddorEdit =
-		hasPermission(['Categories'], ['Create', 'Edit'], currentUser, modules) ||
+		hasPermission(['Products'], ['Create', 'Edit'], currentUser, modules) ||
 		isSuperUser;
 	const canDelete =
-		hasPermission(['Categories'], ['Delete'], currentUser, modules) ||
+		hasPermission(['Products'], ['Delete'], currentUser, modules) ||
 		isSuperUser;
 
 	useEffect(() => {
-		const getCategories = async () => {
+		const getProducts = async () => {
 			try {
-				const response = await fetchData('category/list');
-				setCategories(response);
+				const response = await fetchData('product/list');
+				setProducts(response);
 			} catch (err) {
 				console.error(err);
 			}
 		};
-		getCategories();
+		getProducts();
 	}, [refreshData]);
 
-	const handleEdit = (categoryId) => {
+	const handleEdit = (productId) => {
 		if (!canAddorEdit) {
 			navigate('/access-forbidden');
 		}
-		navigate(`${categoryId}`);
+		navigate(`${productId}`);
 	};
 
-	const handleDelete = async (categoryId) => {
+	const handleDelete = async (productId) => {
 		if (!canDelete) {
 			navigate('/access-forbidden');
 		}
 		try {
-			await deleteData(`category/delete/${categoryId}`);
+			await deleteData(`product/delete/${productId}`);
 			setRefreshData(!refreshData);
 			setError(null);
 		} catch (err) {
@@ -58,33 +58,14 @@ const Categories = () => {
 
 	const columns = [
 		{
-			field: 'name',
-			headerName: 'Category Name',
+			field: 'productName',
+			headerName: 'Product Name',
 			flex: 1,
 		},
 		{
-			field: 'parent',
-			headerName: 'Parent Category',
+			field: 'description',
+			headerName: 'Description',
 			flex: 1,
-			renderCell: (params) => (
-				<div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-					{params.row.parent.map((parentCategory, index) => (
-						<Chip label={parentCategory.name} key={index} />
-					))}
-				</div>
-			),
-		},
-		{
-			field: 'child',
-			headerName: 'Child Category',
-			flex: 1,
-			renderCell: (params) => (
-				<div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-					{params.row.child.map((childCategory, index) => (
-						<Chip label={childCategory.name} key={index} />
-					))}
-				</div>
-			),
 		},
 		{
 			field: '',
@@ -127,15 +108,15 @@ const Categories = () => {
 	return (
 		<Box m='1.5rem 2.5rem'>
 			<Header
-				title='Categories'
-				subtitle='List of Categories'
+				title='Products'
+				subtitle='List of Products'
 				button={
 					(canAddorEdit || currentUser?.isSuperUser) && [
-						<DomainAddOutlined />,
-						'New Category',
+						<PixOutlined />,
+						'New product',
 					]
 				}
-				linkTo='/categories/new'
+				linkTo='/products/new'
 			/>
 			<Box>
 				{error && (
@@ -145,15 +126,16 @@ const Categories = () => {
 				)}
 				<DataGrid
 					autoHeight
-					loading={loading || !categories}
+					loading={loading || !products}
 					getRowId={(row) => row.id}
-					rows={categories || []}
+					rows={products || []}
 					columns={columns}
 					localeText={localeText}
+					getRowHeight={() => 'auto'}
 				/>
 			</Box>
 		</Box>
 	);
 };
 
-export default Categories;
+export default Products;

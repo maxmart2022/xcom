@@ -13,10 +13,10 @@ const useApi = () => {
 		try {
 			setLoading(true);
 			const response = await axiosPrivate.get(url, params);
-			setLoading(false);
+			// setLoading(false);
 			return response.data;
 		} catch (err) {
-			setLoading(false);
+			// setLoading(false);
 			if (err.response && err.response.data && err.response.data.errors) {
 				setError(err.response.data.errors[0].message);
 			} else if (err.response?.status === 401) {
@@ -30,6 +30,8 @@ const useApi = () => {
 				setError('Something unexpected happened!');
 			}
 			return null;
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -64,7 +66,16 @@ const useApi = () => {
 		return postData(url, data, 'DELETE');
 	};
 
-	return { loading, error, fetchData, postData, putData, deleteData, setError };
+	return {
+		loading,
+		error,
+		fetchData,
+		postData,
+		putData,
+		deleteData,
+		setError,
+		setLoading,
+	};
 };
 
 export default useApi;
